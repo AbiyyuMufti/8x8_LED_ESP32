@@ -51,13 +51,12 @@ void onRxCommand(const String& message);
 void onRxBrightness(const String& message);
 void onRxTextGenerator(const String& message);
 void onRxPixels(const String& message);
+void onTXState();
+void sendESPStatus(uint32_t periode = 5000);
 
 void ledRoutine();
 
-void monitorESP();
-
-void clearArray();
-
+void setInitialValue();
 void setChipID();
 
 // function that drives sequenz of the led's lighting

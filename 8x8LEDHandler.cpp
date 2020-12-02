@@ -6,40 +6,6 @@
 #include "Arduino.h"
 #include "Esp.h"
 
-void ledRoutine() {
-	static int oldBrightness = matrix->getBrightness();
-	if (oldBrightness != BRIGHTNESS) {
-		matrix->setBrightness(BRIGHTNESS);
-	}
-	static LEDState oldState = CurrentState;
-	if (CurrentState != oldState)
-	{
-		matrix->clear();
-	}
-
-	switch (CurrentState)
-	{
-	case LightOff:
-		turnOffLight();
-		break;
-	case TextGenerator:
-		generateText();
-		break;
-	case TapToLight:
-		tapPixels();
-		break;
-	case Drumpad:
-		launchDrumpad();
-		break;
-	case LightShow:
-		launchLightShow();
-		break;
-	default:
-		turnOffLight();
-		break;
-	}
-}
-
 void turnOffLight() {
 	static long thisLastTime = millis();
 	static long now;
@@ -114,6 +80,10 @@ void clearArray() {
 
 }
 
+void setInitialValue()
+{
+
+}
 
 void setChipID() {
 	static uint64_t chipid;

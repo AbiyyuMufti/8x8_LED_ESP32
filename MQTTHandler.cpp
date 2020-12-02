@@ -5,31 +5,77 @@
 #include <ArduinoJson.h>
 #include "8x8LEDHandler.h"
 
-
-void monitorESP() {
+void sendESPStatus(uint32_t periode) {
 	static long lastTime = millis();
 	static long now;
 	now = millis();
-	if (now - lastTime >= 5000)
+	if (now - lastTime >= periode)
 	{
 		lastTime = now;
-		// { "Batterie": value, "LDR" : value}
-		StaticJsonDocument<60> toSend;
-		
-		toSend["ADR"] = MAC_ADR;
-		// TODO: for PIN_BATT, connect VIN with voltage divider and connect it to this pin so the battery state can be monitored
-		toSend["BAT"] = analogRead(PIN_BATT);
-
-		// TODO: for PIN_LDR, connect the Light Dependent Resistor to this pin so the light intensity of the environment can be monitored
-		toSend["LDR"] = analogRead(PIN_LDR);
-
-		char buffer[60];
-		size_t n = serializeJson(toSend, buffer);
-		client->publish("LED88ESP32/State", buffer, n);
+		onTXState();
 	}
 }
 
+void onTXState() {
+	// { "ADR": MAC_ADRESS, "BAT": value, "LDR" : value}
+	StaticJsonDocument<60> toSend;
+	toSend["ADR"] = MAC_ADR;
+	toSend["BAT"] = analogRead(PIN_BATT);
+	toSend["LDR"] = analogRead(PIN_LDR);
+	char buffer[60];
+	size_t n = serializeJson(toSend, buffer);
+	client->publish("LED88ESP32/State", buffer, n);
+}
 
+void onRxCommand(const String& message) {
+	// JSON Message: { "cmd": LightOff, "adr": "FF22DDAA0011" }
+	static char msg[50];
+	message.toCharArray(msg, 50);
+
+	StaticJsonDocument<100> receivedMsg;
+	deserializeJson(receivedMsg, msg);
+
+	String cmd = receivedMsg["cmd"];
+	String adr = receivedMsg["adr"];
+	if (adr == "ALL")
+	{
+		MAC_CHECK = MAC_ADR;
+	}
+	else
+	{
+		MAC_CHECK = adr;
+	}
+
+	if (MAC_CHECK == MAC_ADR)
+	{
+		if (cmd.equals("LightOff")){
+			CurrentState = LightOff;
+		}
+		else if (cmd.equals("TextGenerator")){
+			CurrentState = TextGenerator;
+		}
+		else if (cmd.equals("TapToLight")){
+			CurrentState = TapToLight;
+		}
+		else if (cmd.equals("Drumpad")){
+			CurrentState = Drumpad;
+		}
+		else if (cmd.equals("LightOff")){
+			CurrentState = LightShow;
+		}
+		else if (cmd.equals("GetAddress")) {
+			client->publish("LED88ESP32/Address", MAC_ADR);
+		}
+		else if (cmd.equals("GetState")){
+			onTXState();
+		}
+		else
+		{
+			CurrentState = Invalid;
+		}
+	}
+
+}
 
 void onRxBrightness(const String& message) {
 	// JSON Message: "{ "br": 255 }"
@@ -70,53 +116,4 @@ void onRxPixels(const String& message) {
 	PX_COLORS[col][row][0] = receivedMsg["r"];
 	PX_COLORS[col][row][1] = receivedMsg["g"];
 	PX_COLORS[col][row][2] = receivedMsg["b"];
-}
-
-void onRxCommand(const String& message) {
-	// JSON Message: { "cmd": LightOff, "adr": "FF22DDAA0011" }
-	static char msg[50];
-	message.toCharArray(msg, 50);
-
-	StaticJsonDocument<100> receivedMsg;
-	deserializeJson(receivedMsg, msg);
-
-	String cmd = receivedMsg["cmd"];
-	String adr = receivedMsg["adr"];
-	if (adr == "ALL")
-	{
-		MAC_CHECK = MAC_ADR;
-	}
-	else
-	{
-		MAC_CHECK = adr;
-	}
-
-	if (MAC_CHECK == MAC_ADR)
-	{
-		if (cmd.equals("LightOff"))
-		{
-			CurrentState = LightOff;
-		}
-		else if (cmd.equals("TextGenerator"))
-		{
-			CurrentState = TextGenerator;
-		}
-		else if (cmd.equals("TapToLight"))
-		{
-			CurrentState = TapToLight;
-		}
-		else if (cmd.equals("Drumpad"))
-		{
-			CurrentState = Drumpad;
-		}
-		else if (cmd.equals("LightOff"))
-		{
-			CurrentState = LightShow;
-		}
-		else
-		{
-			CurrentState = Invalid;
-		}
-	}
-
 }
