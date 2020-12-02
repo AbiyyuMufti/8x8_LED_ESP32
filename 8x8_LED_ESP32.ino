@@ -1,7 +1,6 @@
 
 /*
     Name:       8x8_LED_ESP32.ino
-
 */
 
 #include <ArduinoJson.h>
