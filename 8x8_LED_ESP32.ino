@@ -30,6 +30,8 @@ byte TXT_SPEED = 100;
 String MAC_ADR = "";
 String MAC_CHECK = "";
 LEDState CurrentState = LightOff;
+unsigned int BatteryState = 0;
+unsigned int LDRValue = 0;
 bool PX_SELECT[8][8] = {
 	 {0, 0, 0, 0, 0, 0, 0, 0},
 	 {0, 0, 0, 0, 0, 0, 0, 0},
@@ -64,7 +66,9 @@ void setup()
 {
 	setInitialValue();
 	Serial.begin(115200);
-	pinMode(2, OUTPUT);
+	pinMode(PIN_LED, OUTPUT);
+	pinMode(PIN_LDR, INPUT);
+	pinMode(PIN_BATT, INPUT);
 	setChipID();
 	client->enableDebuggingMessages();
 	client->setKeepAlive(60);	// Timeout 1 minute
@@ -86,11 +90,8 @@ void loop()
 }
 
 void ledRoutine() {
-	static int oldBrightness = matrix->getBrightness();
+	brightnessControl();
 	static LEDState oldState = CurrentState;
-	if (oldBrightness != BRIGHTNESS) {
-		matrix->setBrightness(BRIGHTNESS);
-	}
 	if (CurrentState != oldState) {
 		matrix->clear();
 	}
@@ -117,3 +118,4 @@ void ledRoutine() {
 	}
 	sendESPStatus();
 }
+
