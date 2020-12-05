@@ -11,22 +11,17 @@
 #include "8x8LEDHandler.h"
 
 
-#define BROKER "mqtt.eclipse.org"
+#define BROKER "192.168.0.187"// "mqtt.eclipse.org"
 #define CLNAME "ESP32Cl"
 #define SSID "HomeSweetHome"
 #define PASS "1bnAbdillah"
-
-const char* broker = "192.168.0.187";//"mqtt.eclipse.org";  // MQTT Broker server ip
-const char* ssid = "HomeSweetHome";
-const char* password = "1bnAbdillah";
-const char* clientName = "ESPTESTClient";
 
 Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(WIDTH, HEIGHT, PIN_LED,
 	NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
 	NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
 	NEO_GRB + NEO_KHZ800);
 
-EspMQTTClient *client = new EspMQTTClient(ssid, password, broker, clientName);
+EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, CLNAME);
 
 byte BRIGHTNESS = 10;
 String TXT_TEXT = "Default";
@@ -73,7 +68,7 @@ void setup()
 	setChipID();
 	client->enableDebuggingMessages();
 	client->setKeepAlive(60);	// Timeout 1 minute
-		
+
 	CurrentState = TextGenerator;
 	TXT_TEXT = MAC_ADR;
 	TXT_COLOR[2] = 255;
