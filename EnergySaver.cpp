@@ -64,12 +64,12 @@ void brightnessControl() {
 	Serial.print(Input);
 	Serial.print(" Out: ");
 	Serial.println(Output);
-	Serial.print("\tBat - unfiltered: ");
+	/*Serial.print("Bat - unfiltered: ");
 	Serial.print(BattUnFil);
 	Serial.print(" filtered: ");
 	Serial.print(BatteryState);
 	Serial.print("\tLDR - unfiltered: ");
 	Serial.print(LDRValUnFil);
 	Serial.print(" filterd: ");
-	Serial.println(LDRValue);
+	Serial.println(LDRValue);*/
 }
