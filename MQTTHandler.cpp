@@ -20,8 +20,8 @@ void onTXState() {
 	// { "ADR": MAC_ADRESS, "BAT": value, "LDR" : value}
 	StaticJsonDocument<100> toSend;
 	toSend["ADR"] = MAC_ADR;
-	toSend["BAT"] = analogRead(PIN_BATT);
-	toSend["LDR"] = analogRead(PIN_LDR);
+	toSend["BAT"] = BatteryState;
+	toSend["LDR"] = LDRValue;
 	char buffer[100];
 	size_t n = serializeJson(toSend, buffer);
 	client->publish("LED88ESP32/State", buffer, n);
