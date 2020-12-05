@@ -19,7 +19,6 @@ void brightnessControl() {
 	static unsigned int LDRValUnFil = 0;
 	static unsigned int BattUnFil = 0;
 	static bool called_once = true;
-	static long oldtime = millis();
 	BatteryState = batFilter.updateEstimate(analogRead(PIN_BATT));
 	BattUnFil = analogRead(PIN_BATT);
 	LDRValue = ldrFilter.updateEstimate(analogRead(PIN_LDR));
@@ -36,13 +35,8 @@ void brightnessControl() {
 			myPID.SetOutputLimits(1, 255);
 			called_once = true;
 		}
-		//if (millis()-oldtime >= 10)
-		//{
 		myPID.Compute();
 		matrix->setBrightness((uint8_t)Output);
-		oldtime = millis();
-		//}
-
 	}
 	else
 	{
@@ -51,19 +45,21 @@ void brightnessControl() {
 			Serial.println("Set to manual");
 			myPID.SetMode(MANUAL);
 			called_once = false;
+			oldBrightness = matrix->getBrightness();
 		}
 		if (oldBrightness != BRIGHTNESS) {
 			matrix->setBrightness(BRIGHTNESS);
 		}
 	}
-	Serial.print("Akt: ");
+	// Uncomment to see the value inside !!!
+	/*Serial.print("Akt: ");
 	Serial.print(matrix->getBrightness());
 	Serial.print(" Set: ");
 	Serial.print(Setpoint);
 	Serial.print(" In: ");
 	Serial.print(Input);
 	Serial.print(" Out: ");
-	Serial.println(Output);
+	Serial.println(Output);*/
 	/*Serial.print("Bat - unfiltered: ");
 	Serial.print(BattUnFil);
 	Serial.print(" filtered: ");
