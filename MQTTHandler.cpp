@@ -69,6 +69,9 @@ void onRxCommand(const String& message) {
 		else if (cmd.equals("GetState")){
 			onTXState();
 		}
+		else if (cmd.equals("LightAdaptation")) {
+			IS_ADAPTABLE_TO_LIGHT = !IS_ADAPTABLE_TO_LIGHT;
+		}
 		else
 		{
 			CurrentState = Invalid;

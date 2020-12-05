@@ -30,6 +30,9 @@ extern byte TXT_COLOR[3];
 extern byte TXT_SPEED;
 extern bool PX_SELECT[8][8];
 extern byte PX_COLORS[8][8][3];
+extern bool IS_ADAPTABLE_TO_LIGHT;
+extern unsigned int BatteryState;
+extern unsigned int LDRValue;
 
 extern Adafruit_NeoMatrix *matrix;
 extern EspMQTTClient *client;
@@ -54,6 +57,7 @@ void onRxPixels(const String& message);
 void onTXState();
 void sendESPStatus(uint32_t periode = 5000);
 
+void brightnessControl();
 void ledRoutine();
 
 void setInitialValue();
