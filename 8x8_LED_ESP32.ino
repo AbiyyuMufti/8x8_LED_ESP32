@@ -10,7 +10,13 @@
 #include <Adafruit_NeoMatrix.h>
 #include "8x8LEDHandler.h"
 
-const char* broker = "mqtt.eclipse.org";  // MQTT Broker server ip
+
+#define BROKER "mqtt.eclipse.org"
+#define CLNAME "ESP32Cl"
+#define SSID "HomeSweetHome"
+#define PASS "1bnAbdillah"
+
+const char* broker = "192.168.0.187";//"mqtt.eclipse.org";  // MQTT Broker server ip
 const char* ssid = "HomeSweetHome";
 const char* password = "1bnAbdillah";
 const char* clientName = "ESPTESTClient";

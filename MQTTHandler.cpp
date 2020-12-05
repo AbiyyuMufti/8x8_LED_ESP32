@@ -18,11 +18,11 @@ void sendESPStatus(uint32_t periode) {
 
 void onTXState() {
 	// { "ADR": MAC_ADRESS, "BAT": value, "LDR" : value}
-	StaticJsonDocument<60> toSend;
+	StaticJsonDocument<100> toSend;
 	toSend["ADR"] = MAC_ADR;
 	toSend["BAT"] = analogRead(PIN_BATT);
 	toSend["LDR"] = analogRead(PIN_LDR);
-	char buffer[60];
+	char buffer[100];
 	size_t n = serializeJson(toSend, buffer);
 	client->publish("LED88ESP32/State", buffer, n);
 }
@@ -99,7 +99,7 @@ void onRxTextGenerator(const String& message) {
 	TXT_COLOR[0] = receivedMsg["r"];
 	TXT_COLOR[1] = receivedMsg["g"];
 	TXT_COLOR[2] = receivedMsg["b"];
-	TXT_SPEED = map(constrain(receivedMsg["spd"], 0, 100), 0, 100, 255, 50);
+	TXT_SPEED = map(receivedMsg["spd"], 50, 255, 150, 50);
 }
 
 void onRxPixels(const String& message) {
