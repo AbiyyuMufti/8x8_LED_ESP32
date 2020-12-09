@@ -29,46 +29,7 @@
 
 // Define Function Prototypes that use User Types below here or use a .h file
 //
-/////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 1
-CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
-CRGB* const leds(leds_plus_safety_pixel + 1);
-// Param for different pixel layouts
-uint16_t XY(uint8_t x, uint8_t y)
-{
-  uint16_t i;
-  if (y & 0x01) {
-    // Odd rows run backwards
-    uint8_t reverseX = (WIDTH - 1) - x;
-    i = (y * WIDTH) + reverseX;
-  }
-  else {
-    // Even rows run forwards
-    i = (y * WIDTH) + x;
-  }
-  return i;
-}
-uint16_t XYsafe(uint8_t x, uint8_t y)
-{
-  if (x >= WIDTH) return -1;
-  if (y >= HEIGHT) return -1;
-  return XY(x, y);
-}
-/////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 2
-CRGBArray<NUM_LEDS> leds_Func_2;
-////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 3
-#define TEMPERATURE_1 Tungsten100W
-#define TEMPERATURE_2 OvercastSky
 
-// How many seconds to show each temperature before switching
-#define DISPLAYTIME 20
-// How many seconds to show black between switches
-#define BLACKTIME   3
-///////////////////////////////////////////
-/////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 4
 /////////////////////////////////////////////
 //Setting Parameters for Launchpad Func 1 & 7
 CRGB leds_plus_safety_pixel[ NUM_LEDS + 1];
@@ -106,6 +67,8 @@ CRGBArray<NUM_LEDS> leds_Func_2;
 // How many seconds to show black between switches
 #define BLACKTIME   3
 ///////////////////////////////////////////
+//Setting Parameters for Launchpad Func 5
+//#define FRAMES_PER_SECOND  120
 /////////////////////////////////////////////
 //Setting Parameters for Launchpad Func 6
 bool gReverseDirection = false;
@@ -145,7 +108,7 @@ extern const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM;
 
 // Define Functions below here or use other .ino or cpp files
 //
-byte BRIGHTNESS = 10;
+byte BRIGHTNESS = 2;
 String TXT_TEXT = "Default";
 byte TXT_COLOR[3] = { 0, 0, 0 };
 byte TXT_SPEED = 100;
@@ -228,7 +191,7 @@ void setup()
   currentBlending = LINEARBLEND;
    /////////////////////////////////////////////////////////////////////////////////////////////////////
 }
-
+void Launchpad_5_Loop();
 // Add the main program code into the continuous loop() function
 void loop()
 {
@@ -236,8 +199,8 @@ void loop()
 	//ledRoutine();
 	//Launchpad_3_Loop();
 	//Launchpad_2_Loop();
-	// Launchpad_4_Loop();
-	Launchpad_5_Loop();
+	Launchpad_4_Loop();
+	//Launchpad_5_Loop();
 }
 
 ///////////////////////////////////////////////
@@ -365,7 +328,7 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
 void Launchpad_5_Loop()
 {
-   EVERY_N_MILLIS(1000/FRAME_PER_SECOND){
+   EVERY_N_MILLIS(1000/FRAMES_PER_SECOND){
 // Call the current pattern function once, updating the 'leds' array
   gPatterns[gCurrentPatternNumber]();
 
