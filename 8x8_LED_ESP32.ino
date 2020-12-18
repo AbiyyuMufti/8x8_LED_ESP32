@@ -10,8 +10,9 @@
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
-#include "8x8LEDHandler.h"
 #include <FastLED.h>
+#include "8x8LEDHandler.h"
+#include "8x8_LED_Seq.h"
 
 
 // Define Function Prototypes that use User Types below here or use a .h file
@@ -81,6 +82,29 @@ void onConnectionEstablished()
 	client->subscribe("LED88ESP32/Pixels", onRxPixels);
 }
 
+void setFastLED() {
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Launchpad 1,3,4,5,6
+	FastLED.addLeds<CHIPSET, PIN_LED, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);
+	FastLED.setBrightness(BRIGHTNESS);
+	//Launchpad 2
+	//FastLED.addLeds<NEOPIXEL,2>(leds_Func_2, NUM_LEDS);
+	//Launchpad 7
+	// Initialize our coordinates to some random values
+	x = random16();
+	y = random16();
+	z = random16();
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Launchpad 8
+	FastLED.setMaxPowerInVoltsAndMilliamps(5, MAX_POWER_MILLIAMPS);
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Launchpad 11
+	currentPalette = RainbowColors_p;
+	currentBlending = LINEARBLEND;
+	///////////////////////////////////////////////////////////////////////////////////////////////////// 
+}
+
 void setup()
 {
 	Serial.begin(115200);
@@ -94,33 +118,16 @@ void setup()
 	CurrentState = TextGenerator;
 	TXT_TEXT = MAC_ADR;
 	TXT_COLOR[2] = 255;
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
-   /////////////////////////////////////////////////////////////////////////////////////////////////////
-  //Launchpad 1,3,4,5,6
-  FastLED.addLeds<CHIPSET, PIN_LED, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);
-  FastLED.setBrightness(BRIGHTNESS);
-  //Launchpad 2
-  //FastLED.addLeds<NEOPIXEL,2>(leds_Func_2, NUM_LEDS);
-  //Launchpad 7
-  // Initialize our coordinates to some random values
-  x = random16();
-  y = random16();
-  z = random16();
-  /////////////////////////////////////////////////////////////////////////////////////////////////////
-  //Launchpad 8
-  FastLED.setMaxPowerInVoltsAndMilliamps(5,MAX_POWER_MILLIAMPS);
-  /////////////////////////////////////////////////////////////////////////////////////////////////////
-  //Launchpad 11
-  currentPalette = RainbowColors_p;
-  currentBlending = LINEARBLEND;
-  ///////////////////////////////////////////////////////////////////////////////////////////////////// 
+	setFastLED();
+	
 }
 
 // Add the main program code into the continuous loop() function
 void loop()
 {
-	client->loop();
-	ledRoutine();
+	//client->loop();
+	//ledRoutine();
+	launchLightShow_1();
 	//Launchpad_3_Loop();
 	//Launchpad_2_Loop();
 	//Launchpad_4_Loop();

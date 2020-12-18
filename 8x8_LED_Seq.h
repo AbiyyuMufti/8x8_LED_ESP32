@@ -3,25 +3,13 @@
 
 #include <FastLED.h>
 
-byte BRIGHTNESS = 2;
 #define PIN_BATT 34
 #define PIN_LDR 35
 #define PIN_LED 2
-#define WIDTH 8
-#define HEIGHT 8
 #define COLOR_ORDER GRB
 #define CHIPSET     WS2811
-#define NUM_LEDS (WIDTH * HEIGHT)
+#define NUM_LEDS (8 * 8)
 #define FRAMES_PER_SECOND  120
-
-Adafruit_NeoMatrix matrix = Adafruit_NeoMatrix(WIDTH, HEIGHT, PIN_LED, 
-  NEO_MATRIX_TOP + NEO_MATRIX_RIGHT +
-  NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE,
-  NEO_GRB + NEO_KHZ800);
-  
-// Global Variables
-int brightness = 100;
-int color[3] = {0, 0, 255};
 
 /////////////////////////////////////////////
 //Setting Parameters for Launchpad Func 1 & 7
@@ -49,7 +37,7 @@ uint16_t XYsafe( uint8_t x, uint8_t y)
 }
 /////////////////////////////////////////////
 //Setting Parameters for Launchpad Func 2
-CRGBArray<NUM_LEDS> leds_Func_2;
+extern CRGBArray<NUM_LEDS> leds_Func_2;
 ////////////////////////////////////////////
 //Setting Parameters for Launchpad Func 3
 #define TEMPERATURE_1 Tungsten100W

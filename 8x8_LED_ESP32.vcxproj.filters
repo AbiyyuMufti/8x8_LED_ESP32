@@ -24,12 +24,18 @@
     <ClInclude Include="8x8LEDHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="8x8_LED_Seq.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="8x8LEDHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MQTTHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="8x8_LED_Seq.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
