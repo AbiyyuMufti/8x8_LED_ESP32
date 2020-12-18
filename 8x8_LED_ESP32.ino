@@ -11,7 +11,7 @@
 #include "8x8LEDHandler.h"
 
 
-#define BROKER "192.168.0.187"// "mqtt.eclipse.org"
+#define BROKER "192.168.0.73"// "mqtt.eclipse.org"
 #define CLNAME "ESP32Cl"
 #define SSID "HomeSweetHome"
 #define PASS "1bnAbdillah"
@@ -71,7 +71,7 @@ void setup()
 	pinMode(PIN_LDR, INPUT);
 	pinMode(PIN_BATT, INPUT);
 	setChipID();
-	//client->enableDebuggingMessages();
+	client->enableDebuggingMessages();
 	client->setKeepAlive(60);	// Timeout 1 minute
 
 	CurrentState = TextGenerator;
