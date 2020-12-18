@@ -5,71 +5,26 @@
 #include <ArduinoJson.h>
 #include "8x8LEDHandler.h"
 
-
-void monitorESP() {
+void sendESPStatus(uint32_t periode) {
 	static long lastTime = millis();
 	static long now;
 	now = millis();
-	if (now - lastTime >= 5000)
+	if (now - lastTime >= periode)
 	{
 		lastTime = now;
-		// { "Batterie": value, "LDR" : value}
-		StaticJsonDocument<60> toSend;
-		
-		toSend["ADR"] = MAC_ADR;
-		// TODO: for PIN_BATT, connect VIN with voltage divider and connect it to this pin so the battery state can be monitored
-		toSend["BAT"] = analogRead(PIN_BATT);
-
-		// TODO: for PIN_LDR, connect the Light Dependent Resistor to this pin so the light intensity of the environment can be monitored
-		toSend["LDR"] = analogRead(PIN_LDR);
-
-		char buffer[60];
-		size_t n = serializeJson(toSend, buffer);
-		client->publish("LED88ESP32/State", buffer, n);
+		onTXState();
 	}
 }
 
-
-
-void onRxBrightness(const String& message) {
-	// JSON Message: "{ "br": 255 }"
-	static char msg[20];
-	message.toCharArray(msg, 20);
-	StaticJsonDocument<20> receivedMsg;
-	deserializeJson(receivedMsg, msg);
-	BRIGHTNESS = receivedMsg["br"];
-}
-
-void onRxTextGenerator(const String& message) {
-	// JSON Message: { "txt": "sometext", "r": 255, "g": 255, "b": 255, "spd" : 255 }
-	static char msg[256];
-	message.toCharArray(msg, 256);
-
-	StaticJsonDocument<256> receivedMsg;
-	deserializeJson(receivedMsg, msg);
-
-	const char* txt = receivedMsg["txt"];
-	TXT_TEXT = String(txt);
-	TXT_COLOR[0] = receivedMsg["r"];
-	TXT_COLOR[1] = receivedMsg["g"];
-	TXT_COLOR[2] = receivedMsg["b"];
-	TXT_SPEED = map(constrain(receivedMsg["spd"], 0, 100), 0, 100, 255, 50);
-}
-
-void onRxPixels(const String& message) {
-	// JSON Message: { "col": 8, "row": 8, "on": 1, "r": 255, "g": 255, "b": 255 }
-	static char msg[100];
-	message.toCharArray(msg, 100);
-
-	StaticJsonDocument<100> receivedMsg;
-	deserializeJson(receivedMsg, msg);
-
-	byte col = receivedMsg["col"];
-	byte row = receivedMsg["row"];
-	PX_SELECT[col][row] = receivedMsg["on"];;
-	PX_COLORS[col][row][0] = receivedMsg["r"];
-	PX_COLORS[col][row][1] = receivedMsg["g"];
-	PX_COLORS[col][row][2] = receivedMsg["b"];
+void onTXState() {
+	// { "ADR": MAC_ADRESS, "BAT": value, "LDR" : value}
+	StaticJsonDocument<100> toSend;
+	toSend["ADR"] = MAC_ADR;
+	toSend["BAT"] = BatteryState;
+	toSend["LDR"] = LDRValue;
+	char buffer[100];
+	size_t n = serializeJson(toSend, buffer);
+	client->publish("LED88ESP32/State", buffer, n);
 }
 
 void onRxCommand(const String& message) {
@@ -93,25 +48,29 @@ void onRxCommand(const String& message) {
 
 	if (MAC_CHECK == MAC_ADR)
 	{
-		if (cmd.equals("LightOff"))
-		{
+		if (cmd.equals("LightOff")){
 			CurrentState = LightOff;
 		}
-		else if (cmd.equals("TextGenerator"))
-		{
+		else if (cmd.equals("TextGenerator")){
 			CurrentState = TextGenerator;
 		}
-		else if (cmd.equals("TapToLight"))
-		{
+		else if (cmd.equals("TapToLight")){
 			CurrentState = TapToLight;
 		}
-		else if (cmd.equals("Drumpad"))
-		{
+		else if (cmd.equals("Drumpad")){
 			CurrentState = Drumpad;
 		}
-		else if (cmd.equals("LightOff"))
-		{
+		else if (cmd.equals("LightOff")){
 			CurrentState = LightShow;
+		}
+		else if (cmd.equals("GetAddress")) {
+			client->publish("LED88ESP32/Address", MAC_ADR);
+		}
+		else if (cmd.equals("GetState")){
+			onTXState();
+		}
+		else if (cmd.equals("Adaptable")) {
+			IS_ADAPTABLE_TO_LIGHT = !IS_ADAPTABLE_TO_LIGHT;
 		}
 		else
 		{
@@ -119,4 +78,45 @@ void onRxCommand(const String& message) {
 		}
 	}
 
+}
+
+void onRxBrightness(const String& message) {
+	// JSON Message: "{ "br": 255 }"
+	static char msg[20];
+	message.toCharArray(msg, 20);
+	StaticJsonDocument<20> receivedMsg;
+	deserializeJson(receivedMsg, msg);
+	BRIGHTNESS = receivedMsg["br"];
+}
+
+void onRxTextGenerator(const String& message) {
+	// JSON Message: { "txt": "sometext", "r": 255, "g": 255, "b": 255, "spd" : 255 }
+	static char msg[256];
+	message.toCharArray(msg, 256);
+
+	StaticJsonDocument<256> receivedMsg;
+	deserializeJson(receivedMsg, msg);
+
+	const char* txt = receivedMsg["txt"];
+	TXT_TEXT = String(txt);
+	TXT_COLOR[0] = receivedMsg["r"];
+	TXT_COLOR[1] = receivedMsg["g"];
+	TXT_COLOR[2] = receivedMsg["b"];
+	TXT_SPEED = map(receivedMsg["spd"], 50, 255, 150, 50);
+}
+
+void onRxPixels(const String& message) {
+	// JSON Message: { "col": 8, "row": 8, "on": 1, "r": 255, "g": 255, "b": 255 }
+	static char msg[100];
+	message.toCharArray(msg, 100);
+
+	StaticJsonDocument<100> receivedMsg;
+	deserializeJson(receivedMsg, msg);
+
+	byte col = receivedMsg["col"];
+	byte row = receivedMsg["row"];
+	PX_SELECT[col][row] = receivedMsg["on"];;
+	PX_COLORS[col][row][0] = receivedMsg["r"];
+	PX_COLORS[col][row][1] = receivedMsg["g"];
+	PX_COLORS[col][row][2] = receivedMsg["b"];
 }

@@ -3,44 +3,8 @@
 // 
 
 #include "8x8LEDHandler.h"
-#include "8x8_LED_Seq.h"
 #include "Arduino.h"
 #include "Esp.h"
-
-void ledRoutine() {
-	static int oldBrightness = matrix->getBrightness();
-	if (oldBrightness != BRIGHTNESS) {
-		matrix->setBrightness(BRIGHTNESS);
-	}
-	static LEDState oldState = CurrentState;
-	if (CurrentState != oldState)
-	{
-		matrix->clear();
-	}
- FastLED.setBrightness(BRIGHTNESS);
-
-	switch (CurrentState)
-	{
-	case LightOff:
-		turnOffLight();
-		break;
-	case TextGenerator:
-		generateText();
-		break;
-	case TapToLight:
-		tapPixels();
-		break;
-	case Drumpad:
-		launchDrumpad();
-		break;
-	case LightShow:
-		launchLightShow();
-		break;
-	default:
-		turnOffLight();
-		break;
-	}
-}
 
 void turnOffLight() {
 	static long thisLastTime = millis();
@@ -96,61 +60,12 @@ void tapPixels() {
 	}
 }
 
+void launchDrumpad() {
+
+}
+
 void launchLightShow() {
-	int select = 0;
-	switch (select)
-	{
-	case 0x00:
-		launchLightShow_1();
-		break;
-	case 0x01:
-		launchLightShow_2();
-		break;
-	case 0x02:
-		launchLightShow_3();
-		break;
-	case 0x03:
-		launchLightShow_4();
-		break;
-	case 0x04:
-		launchLightShow_5();
-		break;
-	case 0x05:
-		launchLightShow_6();
-		break;
-	case 0x06:
-		launchLightShow_7();
-		break;
-	case 0x07:
-		launchLightShow_8();
-		break;
-	case 0x08:
-		launchLightShow_9();
-		break;
-	case 0x09:
-		launchLightShow_10();
-		break;
-	case 0x0A:
-		launchLightShow_11();
-		break;
-	case 0x0B:
-		launchLightShow_12();
-		break;
-	case 0x0C:
-		launchLightShow_13();
-		break;
-	case 0x0D:
-		launchLightShow_14();
-		break;
-	case 0x0E:
-		launchLightShow_15();
-		break;
-	case 0x0F:
-		launchLightShow_16();
-		break;
-	default:
-		break;
-	}
+
 }
 
 void clearArray() {
@@ -162,6 +77,11 @@ void clearArray() {
 			PX_SELECT[row][column] = 0;
 		}
 	}
+
+}
+
+void setInitialValue()
+{
 
 }
 
