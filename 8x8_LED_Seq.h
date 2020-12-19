@@ -7,11 +7,12 @@
 #define COLOR_ORDER GRB
 #define CHIPSET     WS2811
 #define NUM_LEDS (8 * 8)
-#define FRAMES_PER_SECOND  120
+
 
 /////////////////////////////////////////////
 //Setting Parameters for Launchpad Func 2
 // CRGBArray<NUM_LEDS> leds_Func_2;
+
 ////////////////////////////////////////////
 //Setting Parameters for Launchpad Func 3
 #define TEMPERATURE_1 Tungsten100W
@@ -21,6 +22,12 @@
 #define DISPLAYTIME 20
 // How many seconds to show black between switches
 #define BLACKTIME   3
+
+///////////////////////////////////////////
+//Setting Parameters for Launchpad Func 5
+#define FRAMES_PER_SECOND  120
+
+
 ///////////////////////////////////////////
 /////////////////////////////////////////////
 //Setting Parameters for Launchpad Func 8

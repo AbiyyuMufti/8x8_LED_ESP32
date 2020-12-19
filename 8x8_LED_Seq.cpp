@@ -1,37 +1,8 @@
 #include "8x8_LED_Seq.h"
 #include "8x8LEDHandler.h"
 
-//Setting Parameters for Launchpad Func 6
-bool gReverseDirection = false;
-
-
 uint16_t XY(uint8_t x, uint8_t y);
 uint16_t XYsafe(uint8_t x, uint8_t y);
-
-
-///////////////////////////////////////////
-//Setting Parameters for Launchpad Func 5
-//#define FRAMES_PER_SECOND  120
-/////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 6
-// bool gReverseDirection = false;
-///////////////////////////////////////////
-/////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 7
-// Params for width and height
-#define kMatrixWidth 8
-#define kMatrixHeight 8
-#define MAX_DIMENSION ((kMatrixWidth>kMatrixHeight) ? kMatrixWidth : kMatrixHeight)
-#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
-// Param for different pixel layouts
-#define kMatrixSerpentineLayout 1
-// The 32bit version of our coordinates
-
-uint8_t noise[MAX_DIMENSION][MAX_DIMENSION];
-
-CRGBPalette16 myRedWhiteBluePalette;
-//const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM;
-////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////
 //Setting Parameters for Launchpad Func 1 & 7
@@ -87,23 +58,23 @@ uint16_t XYsafe(uint8_t x, uint8_t y)
 	return XY(x, y);
 }
 
+/*---------------------- Light Show 1 ----------------------*/
 
 void DrawOneFrame(byte startHue8, int8_t yHueDelta8, int8_t xHueDelta8)
 {
-    byte lineStartHue = startHue8;
-    for (byte y = 0; y < HEIGHT; y++) {
-        lineStartHue += yHueDelta8;
-        byte pixelHue = lineStartHue;
-        for (byte x = 0; x < WIDTH; x++) {
-            pixelHue += xHueDelta8;
-            leds[XY(x, y)] = CHSV(pixelHue, 255, 255);
-        }
-    }
+	byte lineStartHue = startHue8;
+	for (byte y = 0; y < HEIGHT; y++) {
+		lineStartHue += yHueDelta8;
+		byte pixelHue = lineStartHue;
+		for (byte x = 0; x < WIDTH; x++) {
+			pixelHue += xHueDelta8;
+			leds[XY(x, y)] = CHSV(pixelHue, 255, 255);
+		}
+	}
 }
 
-/*---------------------- Light Show 1 ----------------------*/
 ///////////////////////////////////////////////
-// Launchpad Func 1 Starts here
+// Light Show 1st Pattern : Colorfull drawing rainbow
 void launchLightShow_1()
 {
     uint32_t ms = millis();
@@ -119,12 +90,13 @@ void launchLightShow_1()
     FastLED.show();
 }
 
-CRGBArray<NUM_LEDS> leds_Func_2;
 /*---------------------- Light Show 2 ----------------------*/
+
 ////////////////////////////////////////////////
-// Launchpad Func 2 Starts here
+// Launchpad Func 2 Starts here : // doesn't work?
 void launchLightShow_2()
 {
+	static CRGBArray<NUM_LEDS> leds_Func_2;
     static uint8_t hue;
     EVERY_N_MILLIS(33) {
         for (int i = 0; i < NUM_LEDS / 2; i++) {
@@ -141,8 +113,9 @@ void launchLightShow_2()
     }
 }
 
+/*---------------------- Light Show 3 ----------------------*/
 ////////////////////////////////////////////////
-// Launchpad Func 2 Starts here
+// Light Show 3rd Pattern: Colorfull and circeling in each pixel
 void launchLightShow_3()
 {
     EVERY_N_MILLIS(8) {
@@ -172,14 +145,16 @@ void launchLightShow_3()
     }
 }
 
-////////////////////////////////////////////////
-// Launchpad Func 4 Starts here
+/*---------------------- Light Show 4 ----------------------*/
+
 void fade4(){ 
     for(int i = 0; i < NUM_LEDS; i++){
         leds[i].nscale8(250); 
     } 
 }
 
+////////////////////////////////////////////////
+// Light Show 4th Pattern: up and down colorfull change in gradient
 void launchLightShow_4()
 {
     static uint8_t hue = 0;
@@ -196,6 +171,7 @@ void launchLightShow_4()
             fade4();
             // Wait a little bit before we loop around and do it again
             //delay(10);
+			//TODO: Wrong Place ment of Every_N_Millis
         }
     }
     Serial.print("x");
@@ -220,7 +196,6 @@ void launchLightShow_4()
 // Laucnhpad Func 5 Starts here
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
-
 
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
@@ -293,6 +268,7 @@ void nextPattern()
     gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE(gPatterns);
 }
 
+// Light Show 5th Pattern : Multiple patterns in a row
 void launchLightShow_5()
 {
     EVERY_N_MILLIS(1000 / FRAMES_PER_SECOND) {
@@ -311,6 +287,9 @@ void launchLightShow_5()
 }
 
 /*---------------------- Light Show 6 ----------------------*/
+
+//Setting Parameters for Launchpad Func 6
+bool gReverseDirection = false;
 
 #define COOLING  55
 
@@ -355,7 +334,7 @@ void Fire2012()
 }
 
 ////////////////////////////////////////////////////////
-// Laucnhpad Func 6 Starts here
+// Light Show 6th Pattern : Burning Fire
 void launchLightShow_6()
 {
     EVERY_N_MILLIS(1000 / FRAMES_PER_SECOND) {
@@ -368,10 +347,27 @@ void launchLightShow_6()
 
 
 /*---------------------- Light Show 7 ----------------------*/
+
+/////////////////////////////////////////////
+//Setting Parameters for Launchpad Func 7
+// Params for width and height
+#define kMatrixWidth 8
+#define kMatrixHeight 8
+#define MAX_DIMENSION ((kMatrixWidth>kMatrixHeight) ? kMatrixWidth : kMatrixHeight)
+#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
+// Param for different pixel layouts
+#define kMatrixSerpentineLayout 1
+// The 32bit version of our coordinates
+uint8_t noise[MAX_DIMENSION][MAX_DIMENSION];
+
+CRGBPalette16 myRedWhiteBluePalette;
+//const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM;
+////////////////////////////////////////////////////////////////
+
 uint16_t speed = 20;
 uint16_t scale = 311;
-////////////////////////////////////////////////////////
-// Laucnhpad Func 7 Starts here
+
+
 void fillnoise8() {
     for (int i = 0; i < MAX_DIMENSION; i++) {
         int ioffset = scale * i;
@@ -383,24 +379,28 @@ void fillnoise8() {
     z += speed;
 }
 
+////////////////////////////////////////////////////////
+// Light Show 7th Pattern: Blue Noise Sparkling
 void launchLightShow_7() {
     static uint8_t ihue = 0;
-    fillnoise8();
-    for (int i = 0; i < kMatrixWidth; i++) {
-        for (int j = 0; j < kMatrixHeight; j++) {
-            // We use the value at the (i,j) coordinate in the noise
-            // array for our brightness, and the flipped value from (j,i)
-            // for our pixel's hue.
-            leds[XY(i, j)] = CHSV(noise[j][i], 255, noise[i][j]);
+	EVERY_N_MILLIS(10) {
+		fillnoise8();
+		for (int i = 0; i < kMatrixWidth; i++) {
+			for (int j = 0; j < kMatrixHeight; j++) {
+				// We use the value at the (i,j) coordinate in the noise
+				// array for our brightness, and the flipped value from (j,i)
+				// for our pixel's hue.
+				leds[XY(i, j)] = CHSV(noise[j][i], 255, noise[i][j]);
 
-            // You can also explore other ways to constrain the hue used, like below
-            // leds[XY(i,j)] = CHSV(ihue + (noise[j][i]>>2),255,noise[i][j]);
-        }
-    }
-    ihue += 1;
+				// You can also explore other ways to constrain the hue used, like below
+				// leds[XY(i,j)] = CHSV(ihue + (noise[j][i]>>2),255,noise[i][j]);
+			}
+		}
+		ihue += 1;
 
-    LEDS.show();
-    // delay(10);
+		LEDS.show();
+	}
+    
 }
 
 /*---------------------- Light Show 8 ----------------------*/
@@ -498,10 +498,10 @@ void pacifica_loop()
 }
 
 ////////////////////////////////////////////////////////
-// Laucnhpad Func 8 Starts here
+// Light Show 8th Pattern: Pasifica
 void launchLightShow_8()
 {
-    EVERY_N_MILLISECONDS(20) {
+    EVERY_N_MILLISECONDS(15) {
         pacifica_loop();
         FastLED.show();
     }
@@ -552,7 +552,7 @@ void pride()
 }
 
 ////////////////////////////////////////////////////////
-// Laucnhpad Func 9 Starts here
+// Light Show 9th Pattern: Rainbow Flag
 void launchLightShow_9()
 {
     pride();
@@ -576,7 +576,7 @@ void DrawOneFrame2(byte startHue8, int8_t yHueDelta8, int8_t xHueDelta8)
 
 
 ////////////////////////////////////////////////////////
-// Laucnhpad Func 10 Starts here
+// Light Show 10th Pattern: Collorfull rainbow
 void launchLightShow_10()
 {
     uint32_t ms = millis();
@@ -584,9 +584,11 @@ void launchLightShow_10()
     int32_t xHueDelta32 = ((int32_t)cos16(ms * (39 / 1)) * (310 / kMatrixHeight));
     DrawOneFrame2(ms / 65536, yHueDelta32 / 32768, xHueDelta32 / 32768);
     if (ms < 5000) {
+		Serial.print("y");
         FastLED.setBrightness(scale8(BRIGHTNESS, (ms * 256) / 5000));
     }
     else {
+		Serial.print("x");
         FastLED.setBrightness(BRIGHTNESS);
     }
     FastLED.show();
@@ -700,7 +702,7 @@ void FillLEDsFromPaletteColors(uint8_t colorIndex)
 }
 
 ////////////////////////////////////////////////////////
-// Laucnhpad Func 11 Starts here
+// Light Show 11th Pattern: Changing pallet collor 
 void launchLightShow_11()
 {
     EVERY_N_MILLIS(1000 / FRAMES_PER_SECOND) {

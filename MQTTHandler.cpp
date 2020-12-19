@@ -57,9 +57,6 @@ void onRxCommand(const String& message) {
 		else if (cmd.equals("TapToLight")){
 			CurrentState = TapToLight;
 		}
-		else if (cmd.equals("Drumpad")){
-			CurrentState = Drumpad;
-		}
 		else if (cmd.equals("LightOff")){
 			CurrentState = LightShow;
 		}
