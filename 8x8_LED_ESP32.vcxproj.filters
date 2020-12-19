@@ -35,11 +35,7 @@
     <ClCompile Include="MQTTHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-<<<<<<< HEAD
     <ClCompile Include="8x8_LED_Seq.cpp">
-=======
-    <ClCompile Include="EnergySaver.cpp">
->>>>>>> feature/energy_efficient
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,6 +1,93 @@
 #include "8x8_LED_Seq.h"
 #include "8x8LEDHandler.h"
 
+//Setting Parameters for Launchpad Func 6
+bool gReverseDirection = false;
+
+
+uint16_t XY(uint8_t x, uint8_t y);
+uint16_t XYsafe(uint8_t x, uint8_t y);
+
+
+///////////////////////////////////////////
+//Setting Parameters for Launchpad Func 5
+//#define FRAMES_PER_SECOND  120
+/////////////////////////////////////////////
+//Setting Parameters for Launchpad Func 6
+// bool gReverseDirection = false;
+///////////////////////////////////////////
+/////////////////////////////////////////////
+//Setting Parameters for Launchpad Func 7
+// Params for width and height
+#define kMatrixWidth 8
+#define kMatrixHeight 8
+#define MAX_DIMENSION ((kMatrixWidth>kMatrixHeight) ? kMatrixWidth : kMatrixHeight)
+#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
+// Param for different pixel layouts
+#define kMatrixSerpentineLayout 1
+// The 32bit version of our coordinates
+
+uint8_t noise[MAX_DIMENSION][MAX_DIMENSION];
+
+CRGBPalette16 myRedWhiteBluePalette;
+//const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM;
+////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////
+//Setting Parameters for Launchpad Func 1 & 7
+struct CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
+struct CRGB* const leds(leds_plus_safety_pixel + 1);
+// Param for different pixel layouts
+
+static uint16_t x, y, z;
+
+CRGBPalette16 currentPalette;
+TBlendType    currentBlending;
+
+void setupFastLED()
+{
+	//Launchpad 1,3,4,5,6
+	FastLED.addLeds<CHIPSET, PIN_LED, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);
+	FastLED.setBrightness(BRIGHTNESS);
+	//Launchpad 2
+	//FastLED.addLeds<NEOPIXEL,2>(leds_Func_2, NUM_LEDS);
+	//Launchpad 7
+	// Initialize our coordinates to some random values
+	x = random16();
+	y = random16();
+	z = random16();
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Launchpad 8
+	FastLED.setMaxPowerInVoltsAndMilliamps(5, MAX_POWER_MILLIAMPS);
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Launchpad 11
+	currentPalette = RainbowColors_p;
+	currentBlending = LINEARBLEND;
+}
+
+uint16_t XY(uint8_t x, uint8_t y)
+{
+	uint16_t i;
+	if (y & 0x01) {
+		// Odd rows run backwards
+		uint8_t reverseX = (WIDTH - 1) - x;
+		i = (y * WIDTH) + reverseX;
+	}
+	else {
+		// Even rows run forwards
+		i = (y * WIDTH) + x;
+	}
+	return i;
+}
+
+uint16_t XYsafe(uint8_t x, uint8_t y)
+{
+	if (x >= WIDTH) return -1;
+	if (y >= HEIGHT) return -1;
+	return XY(x, y);
+}
+
+
 void DrawOneFrame(byte startHue8, int8_t yHueDelta8, int8_t xHueDelta8)
 {
     byte lineStartHue = startHue8;
@@ -281,7 +368,8 @@ void launchLightShow_6()
 
 
 /*---------------------- Light Show 7 ----------------------*/
-
+uint16_t speed = 20;
+uint16_t scale = 311;
 ////////////////////////////////////////////////////////
 // Laucnhpad Func 7 Starts here
 void fillnoise8() {
@@ -668,7 +756,7 @@ void arrow(int(*logo)[8], int delay_time) {
     }
 }
 
-void LaunchLightShow_12()
+void launchLightShow_12()
 {
     int delay_time = 150;
     int logo[8][8] = {
@@ -726,7 +814,7 @@ void lock(int(*logo)[8], int delay_time)
     delay(delay_time);
 }
 
-void LaunchLightShow_13()
+void launchLightShow_13()
 {
     int delay_time = 1000;
     int logo[8][8] = {
@@ -770,7 +858,7 @@ void sinus(int(*logo)[8], int delay_time) {
     }
 }
 
-void LaunchLightShow_14()
+void launchLightShow_14()
 {
     int delay_time = 100;
     int logo[8][8] = {
@@ -819,7 +907,7 @@ void steps(int(*logo)[8], int delay_time) {
     delay(delay_time);
 }
 
-void LaunchLightShow_15()
+void launchLightShow_15()
 {
     int delay_time = 100;
     int logo[8][8] = {
@@ -864,7 +952,7 @@ void diamond(int(*logo)[8], int delay_time) {
 }
 
 
-void LaunchLightShow_16()
+void launchLightShow_16()
 {
     int delay_time = 150;
     int logo[8][8] = {

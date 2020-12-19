@@ -8,8 +8,11 @@
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
+#include <SimpleKalmanFilter.h>
+#include <FastLED.h>
+#include <PID_v1.h>
 #include "8x8LEDHandler.h"
-
+#include "8x8_LED_Seq.h"
 
 #define BROKER "192.168.0.73"// "mqtt.eclipse.org"
 #define CLNAME "ESP32Cl"
@@ -33,6 +36,8 @@ LEDState CurrentState = LightOff;
 bool IS_ADAPTABLE_TO_LIGHT = false;
 unsigned int BatteryState = 0;
 unsigned int LDRValue = 0;
+
+
 bool PX_SELECT[8][8] = {
 	 {0, 0, 0, 0, 0, 0, 0, 0},
 	 {0, 0, 0, 0, 0, 0, 0, 0},
@@ -81,6 +86,8 @@ void setup()
 	matrix->begin();
 	matrix->setTextWrap(false);
 	matrix->setBrightness(BRIGHTNESS);
+
+	setupFastLED();
 }
 
 // Add the main program code into the continuous loop() function
@@ -106,9 +113,6 @@ void ledRoutine() {
 		break;
 	case TapToLight:
 		tapPixels();
-		break;
-	case Drumpad:
-		launchDrumpad();
 		break;
 	case LightShow:
 		launchLightShow();

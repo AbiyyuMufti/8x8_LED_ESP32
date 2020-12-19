@@ -43,7 +43,6 @@ enum LEDState
 	LightOff,
 	TextGenerator,
 	TapToLight,
-	Drumpad,
 	LightShow,
 };
 
@@ -67,7 +66,6 @@ void setChipID();
 void turnOffLight();
 void generateText();
 void tapPixels();
-void launchDrumpad();
 void launchLightShow();
 void clearArray();
 

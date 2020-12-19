@@ -60,9 +60,6 @@ void tapPixels() {
 	}
 }
 
-void launchDrumpad() {
-
-}
 
 void launchLightShow() {
 
