@@ -17,3 +17,7 @@ ESP32 Code to control 8x8 LED with MQTT Protocoll via Web Application
   Link: https://github.com/adafruit/Adafruit_NeoMatrix.git  
 * **_Adafruit_GFX_**  
   Link: https://github.com/adafruit/Adafruit-GFX-Library.git  
+* **_PID_Library_**
+https://github.com/br3ttb/Arduino-PID-Library/
+* **_FastLED_**
+https://github.com/FastLED/FastLED
