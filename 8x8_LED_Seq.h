@@ -8,37 +8,6 @@
 #define CHIPSET     WS2811
 #define NUM_LEDS (8 * 8)
 
-
-/////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 2
-// CRGBArray<NUM_LEDS> leds_Func_2;
-
-////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 3
-#define TEMPERATURE_1 Tungsten100W
-#define TEMPERATURE_2 OvercastSky
-
-// How many seconds to show each temperature before switching
-#define DISPLAYTIME 20
-// How many seconds to show black between switches
-#define BLACKTIME   3
-
-///////////////////////////////////////////
-//Setting Parameters for Launchpad Func 5
-#define FRAMES_PER_SECOND  120
-
-
-///////////////////////////////////////////
-/////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 8
-#define FASTLED_ALLOW_INTERRUPTS 0
-#define MAX_POWER_MILLIAMPS 500
-///////////////////////////////////////////
-/////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 11
-#define UPDATES_PER_SECOND 100
-
-
 void setupFastLED();
 
 void launchLightShow_1();
