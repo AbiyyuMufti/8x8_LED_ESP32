@@ -37,6 +37,8 @@ extern unsigned int LDRValue;
 extern Adafruit_NeoMatrix *matrix;
 extern EspMQTTClient *client;
 
+extern byte ESP_NO;
+
 enum LEDState
 {
 	Invalid,
@@ -44,17 +46,21 @@ enum LEDState
 	TextGenerator,
 	TapToLight,
 	LightShow,
+	SingleColor
 };
 
-extern LEDState CurrentState;
+struct SingleColorSetup
+{
+	byte red;
+	byte green;
+	byte blue;
+	byte sequence;
+};
 
-// callback function when massage arrive form the subscirbed topic
-void onRxCommand(const String& message);
-void onRxBrightness(const String& message);
-void onRxTextGenerator(const String& message);
-void onRxPixels(const String& message);
-void onTXState();
-void sendESPStatus(uint32_t periode = 5000);
+extern struct SingleColorSetup SINGLECOLOR;
+extern byte PATTERN;
+
+extern LEDState CurrentState;
 
 void brightnessControl();
 void ledRoutine();
@@ -67,7 +73,18 @@ void turnOffLight();
 void generateText();
 void tapPixels();
 void launchLightShow();
+void launchSingleColor();
 void clearArray();
+
+
+// callback function when massage arrive form the subscirbed topic
+void onRxCommand(const String& message);
+void onRxBrightness(const String& message);
+void onRxTextGenerator(const String& message);
+void onRxPixels(const String& message);
+void onRxLightShow(const String& message);
+void onTXState();
+void sendESPStatus(uint32_t periode = 5000);
 
 
 #endif
