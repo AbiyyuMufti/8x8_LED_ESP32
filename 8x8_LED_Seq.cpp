@@ -165,7 +165,7 @@ void launchLightShow_1()
 // Launchpad Func 2 Starts here : // wrong placement of delay --> using step instead for-loop
 void launchLightShow_2()
 {
-    static uint8_t hue;
+    /*static uint8_t hue;
     //EVERY_N_MILLIS(100) {
         for (int i = 0; i < NUM_LEDS / 2; i++) {
             // fade everything out
@@ -179,7 +179,31 @@ void launchLightShow_2()
             FastLED.delay(33);
         }
     //}
-    FastLED.show();    
+    FastLED.show();  
+    */
+
+    static uint8_t hue;
+    static byte steps = 0;
+    static long last = millis();
+    if (millis() - last >= 25)
+    {
+        for (byte i = steps; i < NUM_LEDS / 2; i += 64)
+        {
+            // fade everything out
+            leds_Func_2.fadeToBlackBy(40);
+
+            // let's set an led value
+            leds_Func_2[i] = CHSV(hue++, 255, 255);
+
+            // now, let's first 20 leds to the top 20 leds, 
+            leds_Func_2(NUM_LEDS / 2, NUM_LEDS - 1) = leds_Func_2(NUM_LEDS / 2 - 1, 0);
+            FastLED.delay(33);
+        }
+        steps++;
+        if (steps >= 64) { steps = 0; }
+        last = millis();
+    }
+    FastLED.show();
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -231,7 +255,8 @@ void fade4(){
 ////////////////////////////////////////////////
 // Light Show 4th Pattern: up and down colorfull change in gradient
 void launchLightShow_4()
-{
+{   
+    /*
     static uint8_t hue = 0;
     Serial.print("x");
     // First slide the led in one direction
@@ -263,6 +288,49 @@ void launchLightShow_4()
             // Wait a little bit before we loop around and do it again
             //delay(10);
         }
+    }*/
+
+    static uint8_t hue = 0;
+    Serial.print("x");
+    static byte steps = 0;
+    static long last = millis();
+    if (millis() - last >= 200)
+    {
+        for (int i = steps; i < NUM_LEDS; i++) {
+            // Set the i'th led to red 
+            leds[i] = CHSV(hue++, 255, 255);
+            // Show the leds
+            FastLED.show();
+            // now that we've shown the leds, reset the i'th led to black
+            // leds[i] = CRGB::Black;
+            fade4();
+            // Wait a little bit before we loop around and do it again
+            //delay(10);
+      //TODO: Wrong Place ment of Every_N_Millis
+        }
+        steps++;
+        if (steps >= 64) { steps = 0; }
+        last = millis();
+    }
+    Serial.print("x");
+    static byte steps2 = (NUM_LEDS)-1;
+    static long last2 = millis();
+    if (millis() - last2 >= 200)
+    {
+        for (int i = steps2; i >= 0; i--) {
+            // Set the i'th led to red 
+            leds[i] = CHSV(hue++, 255, 255);
+            // Show the leds
+            FastLED.show();
+            // now that we've shown the leds, reset the i'th led to black
+            // leds[i] = CRGB::Black;
+            fade4();
+            // Wait a little bit before we loop around and do it again
+            //delay(10);
+        }
+        steps2--;
+        if (steps2 <= 0) { steps2 = (NUM_LEDS)-1; }
+        last2 = millis();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -16,8 +16,8 @@
 
 #define BROKER "192.168.0.73"// "mqtt.eclipse.org"
 #define CLNAME "ESP32Cl"
-#define SSID "HomeSweetHome"
-#define PASS "1bnAbdillah"
+#define SSID "Vodafone-ED3D"
+#define PASS "qHRAAECEnaCP3Aae"
 
 Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(WIDTH, HEIGHT, PIN_LED,
 	NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
