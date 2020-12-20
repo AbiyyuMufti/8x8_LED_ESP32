@@ -93,6 +93,11 @@ void setupFastLED()
 	currentPalette = RainbowColors_p;
 	currentBlending = LINEARBLEND;
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/*---------------------- Common Utility ----------------------*/
 
 uint16_t XY(uint8_t x, uint8_t y)
 {
@@ -115,9 +120,13 @@ uint16_t XYsafe(uint8_t x, uint8_t y)
 	if (y >= HEIGHT) return -1;
 	return XY(x, y);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 1 ----------------------*/
 
+// Utilty function for lightshow 1
 void DrawOneFrame(byte startHue8, int8_t yHueDelta8, int8_t xHueDelta8)
 {
 	byte lineStartHue = startHue8;
@@ -147,16 +156,17 @@ void launchLightShow_1()
     }
     FastLED.show();
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 2 ----------------------*/
-
 ////////////////////////////////////////////////
-// Launchpad Func 2 Starts here : // doesn't work?
+// Launchpad Func 2 Starts here : // wrong placement of delay --> using step instead for-loop
 void launchLightShow_2()
 {
-	static CRGBArray<NUM_LEDS> leds_Func_2;
     static uint8_t hue;
-    EVERY_N_MILLIS(33) {
+    //EVERY_N_MILLIS(100) {
         for (int i = 0; i < NUM_LEDS / 2; i++) {
             // fade everything out
             leds_Func_2.fadeToBlackBy(40);
@@ -166,11 +176,15 @@ void launchLightShow_2()
 
             // now, let's first 20 leds to the top 20 leds, 
             leds_Func_2(NUM_LEDS / 2, NUM_LEDS - 1) = leds_Func_2(NUM_LEDS / 2 - 1, 0);
-            //FastLED.delay(33);
+            FastLED.delay(33);
         }
-    }
+    //}
+    FastLED.show();    
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 3 ----------------------*/
 ////////////////////////////////////////////////
 // Light Show 3rd Pattern: Colorfull and circeling in each pixel
@@ -202,9 +216,12 @@ void launchLightShow_3()
         //FastLED.delay(8);
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 4 ----------------------*/
-
+// Utilty function lightshow 4
 void fade4(){ 
     for(int i = 0; i < NUM_LEDS; i++){
         leds[i].nscale8(250); 
@@ -248,13 +265,13 @@ void launchLightShow_4()
         }
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 5 ----------------------*/
-///////////////////////////////////////////////////////
-// Laucnhpad Func 5 Starts here
 
 // List of patterns to cycle through.  Each is defined as a separate function below.
-
 uint8_t gCurrentPatternNumber = 0; // Index number of which pattern is current
 uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 
@@ -326,6 +343,8 @@ void nextPattern()
     gCurrentPatternNumber = (gCurrentPatternNumber + 1) % ARRAY_SIZE(gPatterns);
 }
 
+///////////////////////////////////////////////////////
+// Laucnhpad Func 5 Starts here
 // Light Show 5th Pattern : Multiple patterns in a row
 void launchLightShow_5()
 {
@@ -343,19 +362,13 @@ void launchLightShow_5()
         EVERY_N_SECONDS(10) { nextPattern(); } // change patterns periodically
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 6 ----------------------*/
 
-//Setting Parameters for Launchpad Func 6
-bool gReverseDirection = false;
-
-#define COOLING  55
-
-// SPARKING: What chance (out of 255) is there that a new spark will be lit?
-// Higher chance = more roaring fire.  Lower chance = more flickery fire.
-// Default 120, suggested range 50-200.
-#define SPARKING 120
-
+// Utility Function for LightShow 6
 void Fire2012()
 {
     // Array of temperature readings at each simulation cell
@@ -402,30 +415,13 @@ void launchLightShow_6()
         //FastLED.delay(1000 / FRAMES_PER_SECOND);
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 7 ----------------------*/
 
-/////////////////////////////////////////////
-//Setting Parameters for Launchpad Func 7
-// Params for width and height
-#define kMatrixWidth 8
-#define kMatrixHeight 8
-#define MAX_DIMENSION ((kMatrixWidth>kMatrixHeight) ? kMatrixWidth : kMatrixHeight)
-#define NUM_LEDS (kMatrixWidth * kMatrixHeight)
-// Param for different pixel layouts
-#define kMatrixSerpentineLayout 1
-// The 32bit version of our coordinates
-uint8_t noise[MAX_DIMENSION][MAX_DIMENSION];
-
-CRGBPalette16 myRedWhiteBluePalette;
-//const TProgmemPalette16 myRedWhiteBluePalette_p PROGMEM;
-////////////////////////////////////////////////////////////////
-
-uint16_t speed = 20;
-uint16_t scale = 311;
-
-
+// Utility Function Light Show 7
 void fillnoise8() {
     for (int i = 0; i < MAX_DIMENSION; i++) {
         int ioffset = scale * i;
@@ -457,10 +453,12 @@ void launchLightShow_7() {
 		ihue += 1;
 
 		LEDS.show();
-	}
-    
+	}   
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 8 ----------------------*/
 
 CRGBPalette16 pacifica_palette_1 =
@@ -564,7 +562,10 @@ void launchLightShow_8()
         FastLED.show();
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 9 ----------------------*/
 // This function draws rainbows with an ever-changing,
 // widely-varying set of parameters.
@@ -609,6 +610,11 @@ void pride()
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/*---------------------- Light Show 9 ----------------------*/
 ////////////////////////////////////////////////////////
 // Light Show 9th Pattern: Rainbow Flag
 void launchLightShow_9()
@@ -616,7 +622,10 @@ void launchLightShow_9()
     pride();
     FastLED.show();
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 10 ----------------------*/
 
 void DrawOneFrame2(byte startHue8, int8_t yHueDelta8, int8_t xHueDelta8)
@@ -651,8 +660,10 @@ void launchLightShow_10()
     }
     FastLED.show();
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 11 ----------------------*/
 
 // This function fills the palette with totally random colors.
@@ -693,7 +704,8 @@ void SetupPurpleAndGreenPalette()
         purple, purple, black, black);
 }
 
-
+CRGBPalette16 myRedWhiteBluePalette;
+////////////////////////////////////////////////////////////////
 // This example shows how to set up a static color palette
 // which is stored in PROGMEM (flash), which is almost always more
 // plentiful than RAM.  A static PROGMEM palette like this
@@ -775,9 +787,12 @@ void launchLightShow_11()
         // FastLED.delay(1000 / UPDATES_PER_SECOND);
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 12-16 ----------------------*/
+// Utility Function Light Show 12-16
 void pre_start(int(*logo)[8]) {
     for (int column = 0; column < 8; column++) {
         for (int row = 0; row < 8; row++) {
@@ -787,9 +802,11 @@ void pre_start(int(*logo)[8]) {
         }
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 12 ----------------------*/
-
 void arrow(int(*logo)[8], int delay_time) {
     //matrix->drawPixel(0, 0, matrix->Color(255,0,0)); 
     int column = 0;
@@ -832,7 +849,10 @@ void launchLightShow_12()
     pre_start(logo);
     arrow(logo, delay_time);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 13 ----------------------*/
 void lock(int(*logo)[8], int delay_time)
 {
@@ -889,7 +909,10 @@ void launchLightShow_13()
         };
     lock(logo, delay_time);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 14 ----------------------*/
 
 void sinus(int(*logo)[8], int delay_time) {
@@ -917,7 +940,10 @@ void sinus(int(*logo)[8], int delay_time) {
         delay(delay_time);
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 void launchLightShow_14()
 {
     int delay_time = 100;
@@ -934,7 +960,10 @@ void launchLightShow_14()
     pre_start(logo);
     sinus(logo, delay_time);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 15 ----------------------*/
 void steps(int(*logo)[8], int delay_time) {
     //matrix->drawPixel(0, 0, matrix->Color(255,0,0)); 
@@ -966,7 +995,10 @@ void steps(int(*logo)[8], int delay_time) {
     }
     delay(delay_time);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 void launchLightShow_15()
 {
     int delay_time = 100;
@@ -982,8 +1014,10 @@ void launchLightShow_15()
     };
     steps(logo, delay_time);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 16 ----------------------*/
 void diamond(int(*logo)[8], int delay_time) {
     //matrix->drawPixel(0, 0, matrix->Color(255,0,0)); 
@@ -1010,8 +1044,10 @@ void diamond(int(*logo)[8], int delay_time) {
         delay(delay_time);
     }
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 void launchLightShow_16()
 {
     int delay_time = 150;
@@ -1028,3 +1064,4 @@ void launchLightShow_16()
     pre_start(logo);
     diamond(logo, delay_time);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////
