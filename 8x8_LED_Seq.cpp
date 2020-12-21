@@ -861,11 +861,14 @@ void launchLightShow_11()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 12-16 ----------------------*/
 // Utility Function Light Show 12-16
-void pre_start(int(*logo)[8]) {
-    for (int column = 0; column < 8; column++) {
-        for (int row = 0; row < 8; row++) {
-            if (logo[row][column] == 1) {
-                matrix->drawPixel(column, row, matrix->Color(0, 255, 0));
+void pre_start(int(*logo)[8], static byte column) {
+    for (byte d = column; d < 8; d++)
+    {
+        for (int row = 0; row < 8; row++)
+        {
+            if (logo[row][d] == 1)
+            {
+                matrix->drawPixel(d, row, matrix->Color(255, 0, 0));
             }
         }
     }
@@ -875,35 +878,51 @@ void pre_start(int(*logo)[8]) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 12 ----------------------*/
-void arrow(int(*logo)[8], int delay_time) {
-    //matrix->drawPixel(0, 0, matrix->Color(255,0,0)); 
-    int column = 0;
+void arrow(int(*logo)[8])
+{
     int row = 0;
-    for (int column = 0; column < 8; column++) {
-        for (int row = 0; row < 8; row++) {
-            matrix->drawPixel(column, 0, matrix->Color(0, 0, 255));
-            if (logo[row][column] == 1) {
-                matrix->drawPixel(column, row, matrix->Color(255, 0, 0));
+    static byte column = 0;
+    static long last = millis();
+    if (millis() - last >= 75)
+    {
+        for (byte c = column; c < 8; c += 8)
+        {
+            for (int row = 0; row < 8; row++)
+            {
+                matrix->drawPixel(column, 0, matrix->Color(0, 0, 255));
+                if (logo[row][column] == 1)
+                {
+                    matrix->drawPixel(column, row, matrix->Color(255, 0, 0));
+                }
+            }
+            matrix->show();
+
+            for (int row = 0; row < 8; row++)
+            {
+                matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
             }
         }
-        matrix->show();
-        delay(25);
-        matrix->drawPixel(column, 0, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 1, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 2, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 3, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 4, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 5, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 6, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 7, matrix->Color(0, 0, 0));
-        //  matrix->drawPixel(column, 0, matrix->Color(0,0,0));
-        delay(delay_time);
+        column++;
+        if (column >= 8)
+        {
+            column = 0;
+        }
+        last = millis();
+    }
+}
+
+void pre_arrow(int(*logo)[8]) {
+    for (int column = 0; column < 8; column++) {
+        for (int row = 0; row < 8; row++) {
+            if (logo[row][column] == 1) {
+                matrix->drawPixel(column, row, matrix->Color(0, 255, 0));
+            }
+        }
     }
 }
 
 void launchLightShow_12()
 {
-    int delay_time = 150;
     int logo[8][8] = {
         {0, 0, 0, 0, 0, 0, 0, 0},
         {0, 0, 0, 0, 1, 0, 0, 0},
@@ -914,57 +933,71 @@ void launchLightShow_12()
         {0, 0, 0, 0, 0, 1, 0, 0},
         {0, 0, 0, 0, 1, 0, 0, 0}
     };
-    pre_start(logo);
-    arrow(logo, delay_time);
+    pre_arrow(logo);
+    arrow(logo);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 13 ----------------------*/
-void lock(int(*logo)[8], int delay_time)
+void lock(int(*logo)[8])
 {
     int column = 0;
     int row = 0;
-    for (int column = 0; column < 8; column++)
+    if (millis() % 2000 > 1000) //Anzeigedauer einer Darstellung festlegen: 1s
     {
-        for (int row = 0; row < 8; row++)
-        {
-            if (logo[row][column] == 1 || logo[row][column] == 2)
-            {
-                matrix->drawPixel(column, row, matrix->Color(255, 0, 0));
-            }
-            else
-            {
-                matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
-            }
-
-        }
-        matrix->show();
-
+        red(logo);
     }
-    delay(delay_time);
-    for (int column = 0; column < 8; column++)
+    else
     {
-        for (int row = 0; row < 8; row++)
-        {
-            if (logo[row][column] == 1 || logo[row][column] == 3)
-            {
-                matrix->drawPixel(column, row, matrix->Color(0, 255, 0));
-            }
-            else
-            {
-                matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
-            }
-        }
-        matrix->show();
+        green(logo);
     }
-    delay(delay_time);
 }
+void red(int(*logo)[8])
+{
+        for (int column = 0; column < 8; column++)
+        {
+            for (int row = 0; row < 8; row++)
+            {
+                if (logo[row][column] == 1 || logo[row][column] == 2)
+                {
+                    matrix->drawPixel(column, row, matrix->Color(255, 0, 0));
+                }
+                else
+                {
+                    matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
+                }
+            }
+            matrix->show();
+        }
+}
+
+void green(int(*logo)[8])
+{
+        for (int column = 0; column < 8; column++)
+        {
+            for (int row = 0; row < 8; row++)
+            {
+                if (logo[row][column] == 1 || logo[row][column] == 3)
+                {
+                    matrix->drawPixel(column, row, matrix->Color(0, 255, 0));
+                }
+                else
+                {
+                    matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
+                }
+            }
+            matrix->show();
+        }
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void launchLightShow_13()
 {
-    int delay_time = 1000;
     int logo[8][8] = {
          {0, 3, 3, 0, 2, 2, 0, 0},
          {3, 0, 0, 1, 0, 0, 2, 0},
@@ -975,7 +1008,7 @@ void launchLightShow_13()
          {0, 0, 1, 0, 0, 0, 0, 1},
          {0, 0, 1, 1, 1, 1, 1, 1}
         };
-    lock(logo, delay_time);
+    lock(logo);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -983,29 +1016,31 @@ void launchLightShow_13()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 14 ----------------------*/
 
-void sinus(int(*logo)[8], int delay_time) {
-    //matrix->drawPixel(0, 0, matrix->Color(255,0,0)); 
-    int column = 0;
+void simond(int(*logo)[8], static byte column) {
     int row = 0;
-    for (int column = 0; column < 8; column++) {
-        for (int row = 0; row < 8; row++) {
-            matrix->drawPixel(column, 0, matrix->Color(0, 0, 255));
-            if (logo[row][column] == 1) {
-                matrix->drawPixel(column, row, matrix->Color(255, 0, 0));
+    static long last = millis();
+    if (millis() - last >= 150)
+    {
+        for (byte c = column; c < 8; c += 8)
+        {
+            for (int row = 0; row < 8; row++) {
+                matrix->drawPixel(column, 0, matrix->Color(0, 0, 255));
+                if (logo[row][column] == 1) {
+                    matrix->drawPixel(column, row, matrix->Color(0, 255, 0));
+                }
+            }
+            matrix->show();
+            for (int row = 0; row < 8; row++)
+            {
+                matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
             }
         }
-        matrix->show();
-        delay(0);
-        matrix->drawPixel(column, 0, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 1, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 2, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 3, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 4, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 5, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 6, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 7, matrix->Color(0, 0, 0));
-        //  matrix->drawPixel(column, 0, matrix->Color(0,0,0));
-        delay(delay_time);
+        column++;
+        if (column >= 8)
+        {
+            column = 0;
+        }
+        last = millis();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1014,7 +1049,7 @@ void sinus(int(*logo)[8], int delay_time) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 void launchLightShow_14()
 {
-    int delay_time = 100;
+    static byte column = 0;
     int logo[8][8] = {
          {0, 0, 0, 0, 0, 0, 0, 0},
          {0, 0, 0, 0, 0, 0, 0, 0},
@@ -1025,43 +1060,50 @@ void launchLightShow_14()
          {0, 0, 0, 0, 1, 0, 1, 0},
          {0, 0, 0, 0, 0, 1, 0, 0}
         };
-    pre_start(logo);
-    sinus(logo, delay_time);
+    pre_start(logo, column);
+    simond(logo, column);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 15 ----------------------*/
-void steps(int(*logo)[8], int delay_time) {
-    //matrix->drawPixel(0, 0, matrix->Color(255,0,0)); 
-    int column = 0;
+void steps(int(*logo)[8])
+{
     int row = 0;
-    for (int column = 0; column < 8; column++)
+    static byte column = 0;
+    static long last = millis();
+    if (millis() - last >= 75)
     {
-        for (int row = 0; row < 8; row++)
+        for (byte c = column; c < 8; c += 8)
         {
-            matrix->drawPixel(column, 0, matrix->Color(0, 0, 255));
-            if (logo[row][column] == 1)
+            for (int row = 0; row < 8; row++)
             {
-                matrix->drawPixel(column, row, matrix->Color(255, 0, 0));
+                matrix->drawPixel(column, 0, matrix->Color(0, 0, 255));
+                if (logo[row][column] == 1)
+                {
+                    matrix->drawPixel(column, row, matrix->Color(255, 0, 0));
+                }
             }
         }
-        //  delay(1500);
-        matrix->show();
-        delay(75);
-
-        //  matrix->drawPixel(column, 0, matrix->Color(0,0,0));
-
-    }
-    for (int column_delete = 0; column_delete < 8; column_delete++)
-    {
-        for (int row_delete = 0; row_delete < 8; row_delete++)
+        column++;
+        if (column >= 8)
         {
-            matrix->drawPixel(column_delete, row_delete, matrix->Color(0, 0, 0));
+            column = 0;
+        }
+        matrix->show();
+        last = millis();
+    }
+    if (column == 0)
+    {
+        for (int column_delete = 0; column_delete < 8; column_delete++)
+        {
+            for (int row_delete = 0; row_delete < 8; row_delete++)
+            {
+                matrix->drawPixel(column_delete, row_delete, matrix->Color(0, 0, 0));
+            }
         }
     }
-    delay(delay_time);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1069,7 +1111,6 @@ void steps(int(*logo)[8], int delay_time) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 void launchLightShow_15()
 {
-    int delay_time = 100;
     int logo[8][8] = {
          {0, 0, 0, 0, 0, 0, 0, 0},
          {0, 0, 0, 0, 0, 0, 0, 1},
@@ -1080,45 +1121,18 @@ void launchLightShow_15()
          {0, 0, 1, 1, 1, 1, 1, 1},
          {0, 1, 1, 1, 1, 1, 1, 1}
     };
-    steps(logo, delay_time);
+    steps(logo);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 16 ----------------------*/
-void diamond(int(*logo)[8], int delay_time) {
-    //matrix->drawPixel(0, 0, matrix->Color(255,0,0)); 
-    int column = 0;
-    int row = 0;
-    for (int column = 0; column < 8; column++) {
-        for (int row = 0; row < 8; row++) {
-            matrix->drawPixel(column, 0, matrix->Color(0, 0, 255));
-            if (logo[row][column] == 1) {
-                matrix->drawPixel(column, row, matrix->Color(0, 255, 0));
-            }
-        }
-        matrix->show();
-        delay(75);
-        matrix->drawPixel(column, 0, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 1, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 2, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 3, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 4, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 5, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 6, matrix->Color(0, 0, 0));
-        matrix->drawPixel(column, 7, matrix->Color(0, 0, 0));
-        //  matrix->drawPixel(column, 0, matrix->Color(0,0,0));
-        delay(delay_time);
-    }
-}
-/////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 void launchLightShow_16()
 {
-    int delay_time = 150;
+    static byte column = 0;
     int logo[8][8] = {
          {0, 0, 0, 0, 0, 0, 0, 0},
          {0, 0, 0, 1, 1, 0, 0, 0},
@@ -1129,7 +1143,7 @@ void launchLightShow_16()
          {0, 0, 1, 0, 0, 1, 0, 0},
          {0, 0, 0, 1, 1, 0, 0, 0}
     };
-    pre_start(logo);
-    diamond(logo, delay_time);
+    pre_start(logo, column);
+    simond(logo, column);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
