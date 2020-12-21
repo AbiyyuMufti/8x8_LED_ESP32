@@ -263,10 +263,3 @@ void setInitialValue()
 {
 
 }
-
-void setChipID() {
-	static uint64_t chipid;
-	chipid = ESP.getEfuseMac();//The chip ID is essentially its MAC address(length: 6 bytes).
-	MAC_ADR = String((uint16_t)(chipid >> 32), HEX) + String((uint32_t)chipid, HEX);
-	Serial.println(MAC_ADR);
-}
