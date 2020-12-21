@@ -14,31 +14,36 @@
 #include "8x8LEDHandler.h"
 #include "8x8_LED_Seq.h"
 
-#define BROKER "192.168.0.73"// "mqtt.eclipse.org"
-#define CLNAME "ESP32Cl"
-#define SSID "Vodafone-ED3D"
-#define PASS "qHRAAECEnaCP3Aae"
+#define ESPPOSITION 10 
+#define BROKER "192.168.0.73"
+#define SSID "HomeSweetHome"
+#define PASS "1bnAbdillah"
 
 Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(WIDTH, HEIGHT, PIN_LED,
 	NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
 	NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
 	NEO_GRB + NEO_KHZ800);
 
-EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, CLNAME);
+const char clientModified[] = { 'E', 'S', 'P', '_', 'N', 'R', char(ESPPOSITION + 65) };
+EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientModified);
 
 byte BRIGHTNESS = 10;
 String TXT_TEXT = "Default";
 byte TXT_COLOR[3] = { 0, 0, 0 };
 byte TXT_SPEED = 100;
-byte ESP_NO = 1;
+byte ESP_NO = ESPPOSITION;
 String MAC_ADR = "";
 String MAC_CHECK = "";
-byte PATTERN = 15;
+byte PATTERN = 5;
 LEDState CurrentState = LightOff;
 bool IS_ADAPTABLE_TO_LIGHT = false;
 unsigned int BatteryState = 0;
 unsigned int LDRValue = 0;
 
+bool FOR_THIS_ESP = 0;
+
+struct PixelsSetup PIXELS;
+struct TxtGeneratorSetup TEXT;
 struct SingleColorSetup SINGLECOLOR;
 
 bool PX_SELECT[8][8] = {};
@@ -46,8 +51,8 @@ byte PX_COLORS[8][8][3] = {};
 
 void onConnectionEstablished()
 {
-	client->publish("LED88ESP32/Address", MAC_ADR);
 	client->subscribe("LED88ESP32/Command", onRxCommand);
+	client->subscribe("LED88ESP32/ESPSelect", onRxESPSelect);
 	client->subscribe("LED88ESP32/Brightness", onRxBrightness);
 	client->subscribe("LED88ESP32/TextGenerator", onRxTextGenerator);
 	client->subscribe("LED88ESP32/Pixels", onRxPixels);
@@ -58,17 +63,18 @@ void onConnectionEstablished()
 
 void setup()
 {
-	setInitialValue();
 	Serial.begin(115200);
 	pinMode(PIN_LED, OUTPUT);
 	pinMode(PIN_LDR, INPUT);
 	pinMode(PIN_BATT, INPUT);
-	setChipID();
+
 	client->enableDebuggingMessages();
 	client->setKeepAlive(60);	// Timeout 1 minute
-
+	
+	setInitialValue();
+	
 	CurrentState = TextGenerator;
-	TXT_TEXT = MAC_ADR;
+	TXT_TEXT = String(ESPPOSITION);
 	TXT_COLOR[2] = 255;
 
 	matrix->begin();
@@ -76,7 +82,6 @@ void setup()
 	matrix->setBrightness(BRIGHTNESS);
 
 	setupFastLED();
-	
 }
 
 
