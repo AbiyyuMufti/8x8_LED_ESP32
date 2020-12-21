@@ -197,7 +197,7 @@ void launchLightShow_2()
 
             // now, let's first 20 leds to the top 20 leds, 
             leds_Func_2(NUM_LEDS / 2, NUM_LEDS - 1) = leds_Func_2(NUM_LEDS / 2 - 1, 0);
-            FastLED.delay(33);
+            //FastLED.delay(33);
         }
         steps++;
         if (steps >= 64) { steps = 0; }
@@ -861,7 +861,8 @@ void launchLightShow_11()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 12-16 ----------------------*/
 // Utility Function Light Show 12-16
-void pre_start(int(*logo)[8], static byte column) {
+void pre_start(int(*logo)[8]) {
+  static byte column = 0;
     for (byte d = column; d < 8; d++)
     {
         for (int row = 0; row < 8; row++)
@@ -941,19 +942,6 @@ void launchLightShow_12()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 13 ----------------------*/
-void lock(int(*logo)[8])
-{
-    int column = 0;
-    int row = 0;
-    if (millis() % 2000 > 1000) //Anzeigedauer einer Darstellung festlegen: 1s
-    {
-        red(logo);
-    }
-    else
-    {
-        green(logo);
-    }
-}
 void red(int(*logo)[8])
 {
         for (int column = 0; column < 8; column++)
@@ -991,6 +979,20 @@ void green(int(*logo)[8])
             matrix->show();
         }
 }
+
+void lock(int(*logo)[8])
+{
+    int column = 0;
+    int row = 0;
+    if (millis() % 2000 > 1000) //Anzeigedauer einer Darstellung festlegen: 1s
+    {
+        red(logo);
+    }
+    else
+    {
+        green(logo);
+    }
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1016,7 +1018,8 @@ void launchLightShow_13()
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 /*---------------------- Light Show 14 ----------------------*/
 
-void simond(int(*logo)[8], static byte column) {
+void simond(int(*logo)[8]) {
+    static byte column = 0;
     int row = 0;
     static long last = millis();
     if (millis() - last >= 150)
@@ -1060,8 +1063,8 @@ void launchLightShow_14()
          {0, 0, 0, 0, 1, 0, 1, 0},
          {0, 0, 0, 0, 0, 1, 0, 0}
         };
-    pre_start(logo, column);
-    simond(logo, column);
+    pre_start(logo);
+    simond(logo);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1143,7 +1146,7 @@ void launchLightShow_16()
          {0, 0, 1, 0, 0, 1, 0, 0},
          {0, 0, 0, 1, 1, 0, 0, 0}
     };
-    pre_start(logo, column);
-    simond(logo, column);
+    pre_start(logo);
+    simond(logo);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
