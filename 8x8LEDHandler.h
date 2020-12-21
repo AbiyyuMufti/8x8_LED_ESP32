@@ -38,6 +38,7 @@ extern Adafruit_NeoMatrix *matrix;
 extern EspMQTTClient *client;
 
 extern byte ESP_NO;
+extern bool FOR_THIS_ESP;
 
 enum LEDState
 {
