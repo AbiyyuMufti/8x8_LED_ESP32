@@ -2,14 +2,18 @@
 #include "8x8_LED_Seq.h"
 #include "Arduino.h"
 #include "Esp.h"
+#include <SimpleKalmanFilter.h>
 
 void turnOffLight() {
 	static long thisLastTime = millis();
 	static long now;
 	now = millis();
-	if (now - thisLastTime >= 1000)
+	if (now - thisLastTime >= 100)
 	{
 		clearArray();
+		SINGLECOLOR.blue = 0;
+		SINGLECOLOR.green = 0;
+		SINGLECOLOR.red = 0;
 		Serial.println("off");
 		matrix->clear();
 		matrix->show();
@@ -22,19 +26,18 @@ void generateText() {
 	static long thisLastTime = millis();
 	static long now;
 	static int x = matrix->width();
-	// Using polling timer! avoid using delay!
 	now = millis();
 	static byte takt;
-	takt = constrain(TXT_SPEED, 50, 255);
+	takt = constrain(TEXT.SPEED, 50, 255);
 	if (now - thisLastTime >= takt) {
 		thisLastTime = now;
 		matrix->fillScreen(0);
 		matrix->setCursor(x, 0);
-		matrix->print(TXT_TEXT);
-		int n = (-6 * TXT_TEXT.length());
+		matrix->setTextColor(matrix->Color(TEXT.COLOR[0], TEXT.COLOR[1], TEXT.COLOR[2]));
+		matrix->print(TEXT.TEXT);
+		int n = (-6 * TEXT.TEXT.length());
 		if (--x < n) {
 			x = matrix->width();
-			matrix->setTextColor(matrix->Color(TXT_COLOR[0], TXT_COLOR[1], TXT_COLOR[2]));
 		}
 		matrix->show();
 	}
@@ -44,12 +47,12 @@ void tapPixels() {
 	static long thisLastTime = millis();
 	static long now;
 	now = millis();
-	if (now - thisLastTime >= 200)
+	if (now - thisLastTime >= 100)
 	{
 		matrix->clear();
 		for (byte column = 0; column < 8; column++) {
 			for (byte row = 0; row < 8; row++) {
-				matrix->drawPixel(column, row, matrix->Color(PX_COLORS[column][row][0], PX_COLORS[column][row][1], PX_COLORS[column][row][2]));
+				matrix->drawPixel(column, row, matrix->Color(PIXELS.COLORS[column][row][0], PIXELS.COLORS[column][row][1], PIXELS.COLORS[column][row][2]));
 			}
 		}
 		thisLastTime = now;
@@ -77,11 +80,9 @@ void launchLightShow() {
 		launchLightShow_14,
 		launchLightShow_15,
 		launchLightShow_16
-	};
-
+	}; 
 	lightShowPattern[PATTERN]();
 }
-
 
 float max3point(float a, float b, float c) {
 	if (a > b)
@@ -162,19 +163,6 @@ void singleColorSeq1(const byte& r, const byte& g, const byte& b) {
 }
 
 void singleColorSeq2(const byte& r, const byte& g, const byte& b) {
-	
-		/*for (byte b = 0; b < 3; b++)
-		{
-			matrix->clear();
-			// 'c' counts up from 'b' to end of strip in steps of 3...
-			for (byte c = b; c < matrix->numPixels(); c += 3)
-			{
-				matrix->setPixelColor(c, matrix->Color(r, g, b)); // Set pixel 'c' to value 'color'
-			}
-			matrix->show(); // Update strip with new contents
-			delay(100);  // Pause for a moment
-		}*/
-	
 	static byte steps = 0;
 	static long last = millis();
 	if (millis() - last >= 75)
@@ -233,33 +221,32 @@ typedef void (*singleColorList[])(const byte& r, const byte& g, const byte& b);
 singleColorList listSingleColor = { singleColorSeq0, singleColorSeq1, singleColorSeq2, singleColorSeq3 };
 
 void launchSingleColor() {
-	static byte r, g, b, seq;
-	if (r != SINGLECOLOR.red || g != SINGLECOLOR.green || b != SINGLECOLOR.blue)
-	{
-		r = SINGLECOLOR.red;
-		g = SINGLECOLOR.green;
-		b = SINGLECOLOR.blue;
-	}
+	static byte r, g, b, seq = 0;
 	if (seq != SINGLECOLOR.sequence)
 	{
 		seq = SINGLECOLOR.sequence;
 	}
-	listSingleColor[seq](r, g, b);
+	listSingleColor[seq](SINGLECOLOR.red, SINGLECOLOR.green, SINGLECOLOR.blue);
 }
 
 void clearArray() {
 	for (byte column = 0; column < 8; column++) {
 		for (byte row = 0; row < 8; row++) {
-			PX_COLORS[row][column][0] = 0;
-			PX_COLORS[row][column][1] = 0;
-			PX_COLORS[row][column][2] = 0;
-			PX_SELECT[row][column] = 0;
+			PIXELS.COLORS[row][column][0] = 0;
+			PIXELS.COLORS[row][column][1] = 0;
+			PIXELS.COLORS[row][column][2] = 0;
+			PIXELS.SELECT[row][column] = 0;
 		}
 	}
-
 }
 
 void setInitialValue()
 {
-
+	CurrentState = LightShow;
+	TEXT.COLOR[0] = 0;
+	TEXT.COLOR[1] = 0;
+	TEXT.COLOR[2] = 255;
+	TEXT.SPEED = 100;
+	TEXT.TEXT = String(ESP_NO);
+	clearArray();
 }
