@@ -291,7 +291,6 @@ void launchLightShow_4()
     }*/
 
     static uint8_t hue = 0;
-    Serial.print("x");
     static byte steps = 0;
     static long last = millis();
     if (millis() - last >= 200)
