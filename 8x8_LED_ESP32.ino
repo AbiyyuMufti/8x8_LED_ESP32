@@ -28,27 +28,18 @@ char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 65) };
 EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientname);
 
 
-byte BRIGHTNESS = 10;
-String TXT_TEXT = "Default";
-byte TXT_COLOR[3] = { 0, 0, 0 };
-byte TXT_SPEED = 100;
-byte ESP_NO = ESPPOSITION;
-String MAC_ADR = "";
-String MAC_CHECK = "";
-byte PATTERN = 5;
 LEDState CurrentState = LightOff;
 bool IS_ADAPTABLE_TO_LIGHT = false;
-unsigned int BatteryState = 0;
-unsigned int LDRValue = 0;
-
+byte BRIGHTNESS = 10;
+byte ESP_NO = ESPPOSITION;
+byte PATTERN = 0;
 bool FOR_THIS_ESP = 0;
 
+struct ESPState ESPINFO;
 struct PixelsSetup PIXELS;
 struct TxtGeneratorSetup TEXT;
 struct SingleColorSetup SINGLECOLOR;
 
-bool PX_SELECT[8][8] = {};
-byte PX_COLORS[8][8][3] = {};
 
 void onConnectionEstablished()
 {
@@ -58,8 +49,8 @@ void onConnectionEstablished()
 	client->subscribe("LED88ESP32/TextGenerator", onRxTextGenerator);
 	client->subscribe("LED88ESP32/Pixels", onRxPixels);
 	client->subscribe("LED88ESP32/LightShow", onRxLightShow);
-	client->subscribe("LED88ESP32/SingleColor/setColor", onRxLightShow);
-	client->subscribe("LED88ESP32/SingleColor/setSequence", onRxLightShow);
+	client->subscribe("LED88ESP32/SingleColor/setColor", onRxSingleColorSetColor);
+	client->subscribe("LED88ESP32/SingleColor/setSequence", onRxSingleColorSetSequence);
 }
 
 void setup()
@@ -73,15 +64,10 @@ void setup()
 	client->setKeepAlive(60);	// Timeout 1 minute
 	
 	setInitialValue();
-	
-	CurrentState = TextGenerator;
-	TXT_TEXT = String(ESPPOSITION);
-	TXT_COLOR[2] = 255;
 
 	matrix->begin();
 	matrix->setTextWrap(false);
 	matrix->setBrightness(BRIGHTNESS);
-
 	setupFastLED();
 }
 
@@ -121,6 +107,3 @@ void ledRoutine() {
 	}
 	sendESPStatus();
 }
-
-// TODO: Struct for Global Informations
-// TODO: Check MQTT Capability
