@@ -187,11 +187,11 @@ void singleColorSeq3(const byte& r, const byte& g, const byte& b) {
 	static bool dir = false;
 	static long last = millis();
 	calculateHSV(r, g, b, hue, saturation, value);
-	if (millis() - last >= 2)
+	if (millis() - last >= 20)
 	{
 		for (int i = -32; i < NUM_LEDS - 32; i++)
 		{
-			uint32_t pixelHue = steps + hue + (i * (65536/2) / NUM_LEDS);
+			uint32_t pixelHue = steps + hue + i*2;
 			//matrix->setPixelColor(i + 32, matrix->gamma32(matrix->ColorHSV(pixelHue, saturation, value)));
 			ledArray[i + 32] = CHSV(pixelHue, saturation, value);
 		}
@@ -199,19 +199,13 @@ void singleColorSeq3(const byte& r, const byte& g, const byte& b) {
 		Serial.println(steps);
 		if (dir)
 		{
-			steps += 32;
-			if (steps >= 65536/8)
-			{
-				dir = !dir;
-			}
+			steps++;
+			if (steps >= 32){dir = !dir;}
 		}
 		else
 		{
-			steps -= 32;
-			if (steps <= -1*(65536 / 8))
-			{
-				dir = !dir;
-			}
+			steps--;
+			if (steps <= -1*32){dir = !dir;}
 		}
 		last = millis();
 	}
