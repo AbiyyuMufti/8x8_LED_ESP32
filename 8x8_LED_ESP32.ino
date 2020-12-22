@@ -24,8 +24,9 @@ Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(WIDTH, HEIGHT, PIN_LED,
 	NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
 	NEO_GRB + NEO_KHZ800);
 
-const char clientModified[] = { 'E', 'S', 'P', '_', 'N', 'R', char(ESPPOSITION + 65) };
-EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientModified);
+char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 65) };
+EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientname);
+
 
 byte BRIGHTNESS = 10;
 String TXT_TEXT = "Default";
