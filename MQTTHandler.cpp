@@ -168,6 +168,7 @@ void onRxSingleColorSetSequence(const String& message) {
 	
 }
 
+
 void onRxESPSelect(const String& message)
 {
 	// Json Message: "{"sel": [true, true, true, true, true, true, false, true, true, true, false, true, true, false, true, false]}"
@@ -181,5 +182,32 @@ void onRxESPSelect(const String& message)
 	if (FOR_THIS_ESP != forThisDevice)
 	{
 		FOR_THIS_ESP = forThisDevice;
+	}
+}
+
+
+void onRxLightShowAdvance(const String& message) {
+	// JSON Message: { "sel": 16, "ptr": 20, "r": 255, "g": 255, "b": 255 }
+	static char msg[100];
+	message.toCharArray(msg, 100);
+
+	StaticJsonDocument<100> receivedMsg;
+	deserializeJson(receivedMsg, msg);
+
+	byte selection = receivedMsg["sel"];
+	byte ptr = receivedMsg["ptr"];
+	if (ESP_NO == selection)
+	{
+		SINGLECOLOR.red = receivedMsg["r"];
+		SINGLECOLOR.green = receivedMsg["g"];
+		SINGLECOLOR.blue = receivedMsg["b"];
+	}
+	if (ptr < 3)
+	{
+		SINGLECOLOR.sequence = ptr;
+	}
+	else
+	{
+		PATTERN = ptr - 2;
 	}
 }
