@@ -886,22 +886,18 @@ void arrow(int(*logo)[8])
     static long last = millis();
     if (millis() - last >= 75)
     {
-        for (byte c = column; c < 8; c += 8)
+        for (int row = 0; row < 8; row++)
         {
-            for (int row = 0; row < 8; row++)
+            matrix->drawPixel(column, 0, matrix->Color(0, 0, 255));
+            if (logo[row][column] == 1)
             {
-                matrix->drawPixel(column, 0, matrix->Color(0, 0, 255));
-                if (logo[row][column] == 1)
-                {
-                    matrix->drawPixel(column, row, matrix->Color(255, 0, 0));
-                }
+                matrix->drawPixel(column, row, matrix->Color(255, 0, 0));
             }
-            matrix->show();
-
-            for (int row = 0; row < 8; row++)
-            {
-                matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
-            }
+        }
+        matrix->show();
+        for (int row = 0; row < 8; row++)
+        {
+            matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
         }
         column++;
         if (column >= 8)
@@ -957,8 +953,8 @@ void red(int(*logo)[8])
                     matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
                 }
             }
-            matrix->show();
         }
+        matrix->show();
 }
 
 void green(int(*logo)[8])
@@ -976,8 +972,8 @@ void green(int(*logo)[8])
                     matrix->drawPixel(column, row, matrix->Color(0, 0, 0));
                 }
             }
-            matrix->show();
         }
+        matrix->show();
 }
 
 void lock(int(*logo)[8])
@@ -992,6 +988,7 @@ void lock(int(*logo)[8])
     {
         green(logo);
     }
+
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
