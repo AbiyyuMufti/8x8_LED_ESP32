@@ -149,7 +149,7 @@ void singleColorSeq1(const byte& r, const byte& g, const byte& b) {
 		if (go_up)
 		{
 			brg++;
-			if (brg >= 50) { go_up = !go_up; }
+			if (brg >= 100) { go_up = !go_up; }
 		}
 		else
 		{
@@ -168,9 +168,10 @@ void singleColorSeq2(const byte& r, const byte& g, const byte& b) {
 	if (millis() - last >= 75)
 	{
 		matrix->clear();
-		for (byte c = steps; c < matrix->numPixels(); c += 3)
+		for (byte c = steps; c < 64; c += 3)
 		{
-			matrix->setPixelColor(c, matrix->Color(r, g, b)); // Set pixel 'c' to value 'color'
+			ledArray[c] = CRGB(r, g, b);
+			//matrix->setPixelColor(c, matrix->Color(r, g, b)); // Set pixel 'c' to value 'color'
 		}
 		steps++;
 		if (steps >= 3) { steps = 0; }
@@ -188,10 +189,11 @@ void singleColorSeq3(const byte& r, const byte& g, const byte& b) {
 	calculateHSV(r, g, b, hue, saturation, value);
 	if (millis() - last >= 2)
 	{
-		for (int i = -32; i < matrix->numPixels() - 32; i++)
+		for (int i = -32; i < NUM_LEDS - 32; i++)
 		{
-			uint32_t pixelHue = steps + hue + (i * (65536/2) / matrix->numPixels());
-			matrix->setPixelColor(i + 32, matrix->gamma32(matrix->ColorHSV(pixelHue, saturation, value)));
+			uint32_t pixelHue = steps + hue + (i * (65536/2) / NUM_LEDS);
+			//matrix->setPixelColor(i + 32, matrix->gamma32(matrix->ColorHSV(pixelHue, saturation, value)));
+			ledArray[i + 32] = CHSV(pixelHue, saturation, value);
 		}
 		matrix->show();
 		Serial.println(steps);
@@ -211,7 +213,6 @@ void singleColorSeq3(const byte& r, const byte& g, const byte& b) {
 				dir = !dir;
 			}
 		}
-
 		last = millis();
 	}
 

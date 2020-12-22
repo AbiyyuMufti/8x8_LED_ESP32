@@ -30,7 +30,7 @@ void brightnessControl() {
 	static const double Kp = 0.1, Ki = 0.0001, Kd = 0;
 	static PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, REVERSE);
 
-	static int oldBrightness = matrix->gamma8(matrix->getBrightness());
+	static int oldBrightness = BRIGHTNESS;
 	static bool called_once = true;
 	
 	calculateESPState();
@@ -57,7 +57,7 @@ void brightnessControl() {
 			Serial.println("Set to manual");
 			myPID.SetMode(MANUAL);
 			called_once = false;
-			oldBrightness = matrix->getBrightness();
+			oldBrightness = BRIGHTNESS;
 		}
 		if (oldBrightness != BRIGHTNESS) {
 			matrix->setBrightness(BRIGHTNESS);

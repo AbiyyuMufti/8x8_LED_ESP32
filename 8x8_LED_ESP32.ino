@@ -3,13 +3,11 @@
     Name:       8x8_LED_ESP32.ino
 */
 
+#include <Adafruit_GFX.h>
+#include <FastLED_NeoMatrix.h>
 #include <ArduinoJson.h>
 #include <EspMQTTClient.h>
-#include <Adafruit_NeoPixel.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_NeoMatrix.h>
 #include <SimpleKalmanFilter.h>
-#include <FastLED.h>
 #include <PID_v1.h>
 #include "8x8LEDHandler.h"
 #include "8x8_LED_Seq.h"
@@ -19,10 +17,10 @@
 #define SSID "HomeSweetHome"
 #define PASS "1bnAbdillah"
 
-Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(WIDTH, HEIGHT, PIN_LED,
-	NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
-	NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
-	NEO_GRB + NEO_KHZ800);
+CRGBArray<64> ledArray;
+
+FastLED_NeoMatrix* matrix = new FastLED_NeoMatrix(ledArray, WIDTH, HEIGHT, 1, 1,
+	NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE);
 
 char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 65) };
 EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientname);
