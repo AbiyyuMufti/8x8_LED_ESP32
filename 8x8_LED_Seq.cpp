@@ -3,13 +3,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Setting Parameters for Launchpad Func 1 & 7
-struct CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
-struct CRGB* const leds(leds_plus_safety_pixel + 1);
+//struct CRGB leds_plus_safety_pixel[NUM_LEDS + 1];
+//struct CRGB* const leds(leds_plus_safety_pixel + 1);
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 // Setting Parameters for Launchpad Func 2
-CRGBArray<NUM_LEDS> leds_Func_2;
+//CRGBArray<NUM_LEDS> leds_Func_2;
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -17,9 +18,9 @@ CRGBArray<NUM_LEDS> leds_Func_2;
 #define TEMPERATURE_1 Tungsten100W
 #define TEMPERATURE_2 OvercastSky
 // How many seconds to show each temperature before switching
-#define DISPLAYTIME 20
+#define DISPLAYTIME 50
 // How many seconds to show black between switches
-#define BLACKTIME   3
+#define BLACKTIME   1
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -74,11 +75,11 @@ void setupFastLED()
 {
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Launchpad 1,3,4,5,6
-	FastLED.addLeds<CHIPSET, PIN_LED, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);
-	FastLED.setBrightness(BRIGHTNESS);
+	//FastLED.addLeds<CHIPSET, PIN_LED, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalSMD5050);
+	//FastLED.setBrightness(BRIGHTNESS);
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Launchpad 2
-	//FastLED.addLeds<NEOPIXEL,2>(leds_Func_2, NUM_LEDS);
+	FastLED.addLeds<NEOPIXEL,2>(ledArray, NUM_LEDS);
     /////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Launchpad 7
 	// Initialize our coordinates to some random values
@@ -135,7 +136,7 @@ void DrawOneFrame(byte startHue8, int8_t yHueDelta8, int8_t xHueDelta8)
 		byte pixelHue = lineStartHue;
 		for (byte x = 0; x < WIDTH; x++) {
 			pixelHue += xHueDelta8;
-			leds[XY(x, y)] = CHSV(pixelHue, 255, 255);
+			ledArray[XY(x, y)] = CHSV(pixelHue, 255, 255);
 		}
 	}
 }
@@ -165,45 +166,21 @@ void launchLightShow_1()
 // Launchpad Func 2 Starts here : // wrong placement of delay --> using step instead for-loop
 void launchLightShow_2()
 {
-    /*static uint8_t hue;
-    //EVERY_N_MILLIS(100) {
-        for (int i = 0; i < NUM_LEDS / 2; i++) {
-            // fade everything out
-            leds_Func_2.fadeToBlackBy(40);
-
-            // let's set an led value
-            leds_Func_2[i] = CHSV(hue++, 255, 255);
-
-            // now, let's first 20 leds to the top 20 leds, 
-            leds_Func_2(NUM_LEDS / 2, NUM_LEDS - 1) = leds_Func_2(NUM_LEDS / 2 - 1, 0);
-            FastLED.delay(33);
-        }
-    //}
-    FastLED.show();  
-    */
-
-    static uint8_t hue;
-    static byte steps = 0;
     static long last = millis();
-    if (millis() - last >= 25)
+    static uint8_t hue;
+    static int steps;
+    if (millis() - last >= 33)
     {
-        for (byte i = steps; i < NUM_LEDS / 2; i += 64)
-        {
-            // fade everything out
-            leds_Func_2.fadeToBlackBy(40);
-
-            // let's set an led value
-            leds_Func_2[i] = CHSV(hue++, 255, 255);
-
-            // now, let's first 20 leds to the top 20 leds, 
-            leds_Func_2(NUM_LEDS / 2, NUM_LEDS - 1) = leds_Func_2(NUM_LEDS / 2 - 1, 0);
-            //FastLED.delay(33);
-        }
+        // fade everything out
+        ledArray.fadeToBlackBy(40);
+        // let's set an led value
+        ledArray[steps] = CHSV(hue++, 255, 255);
+        // now, let's first 20 leds to the top 20 leds, 
+        ledArray(NUM_LEDS / 2, NUM_LEDS - 1) = ledArray(NUM_LEDS / 2 - 1, 0);
         steps++;
-        if (steps >= 64) { steps = 0; }
+        if (steps > NUM_LEDS/2){steps = 0;}
         last = millis();
     }
-    FastLED.show();
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -217,27 +194,25 @@ void launchLightShow_3()
     EVERY_N_MILLIS(8) {
         // draw a generic, no-name rainbow
         static uint8_t starthue = 0;
-        fill_rainbow(leds + 5, NUM_LEDS - 5, --starthue, 20);
+        fill_rainbow(ledArray + 5, NUM_LEDS - 5, --starthue, 20);
 
         // Choose which 'color temperature' profile to enable.
         uint8_t secs = (millis() / 1000) % (DISPLAYTIME * 2);
         if (secs < DISPLAYTIME) {
             FastLED.setTemperature(TEMPERATURE_1); // first temperature
-            leds[0] = TEMPERATURE_1; // show indicator pixel
+            ledArray[0] = TEMPERATURE_1; // show indicator pixel
         }
         else {
             FastLED.setTemperature(TEMPERATURE_2); // second temperature
-            leds[0] = TEMPERATURE_2; // show indicator pixel
+            ledArray[0] = TEMPERATURE_2; // show indicator pixel
         }
 
         // Black out the LEDs for a few secnds between color changes
         // to let the eyes and brains adjust
         if ((secs % DISPLAYTIME) < BLACKTIME) {
-            memset8(leds, 0, NUM_LEDS * sizeof(CRGB));
+            memset8(ledArray, 0, NUM_LEDS * sizeof(CRGB));
         }
-
         FastLED.show();
-        //FastLED.delay(8);
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -248,7 +223,7 @@ void launchLightShow_3()
 // Utilty function lightshow 4
 void fade4(){ 
     for(int i = 0; i < NUM_LEDS; i++){
-        leds[i].nscale8(250); 
+        ledArray[i].nscale8(250); 
     } 
 }
 
@@ -256,40 +231,6 @@ void fade4(){
 // Light Show 4th Pattern: up and down colorfull change in gradient
 void launchLightShow_4()
 {   
-    /*
-    static uint8_t hue = 0;
-    Serial.print("x");
-    // First slide the led in one direction
-    EVERY_N_MILLIS(8) {
-        for (int i = 0; i < NUM_LEDS; i++) {
-            // Set the i'th led to red 
-            leds[i] = CHSV(hue++, 255, 255);
-            // Show the leds
-            FastLED.show();
-            // now that we've shown the leds, reset the i'th led to black
-            // leds[i] = CRGB::Black;
-            fade4();
-            // Wait a little bit before we loop around and do it again
-            //delay(10);
-			//TODO: Wrong Place ment of Every_N_Millis
-        }
-    }
-    Serial.print("x");
-    EVERY_N_MILLIS(10) {
-        // Now go in the other direction.  
-        for (int i = (NUM_LEDS)-1; i >= 0; i--) {
-            // Set the i'th led to red 
-            leds[i] = CHSV(hue++, 255, 255);
-            // Show the leds
-            FastLED.show();
-            // now that we've shown the leds, reset the i'th led to black
-            // leds[i] = CRGB::Black;
-            fade4();
-            // Wait a little bit before we loop around and do it again
-            //delay(10);
-        }
-    }*/
-
     static uint8_t hue = 0;
     static byte steps = 0;
     static long last = millis();
@@ -297,11 +238,11 @@ void launchLightShow_4()
     {
         for (int i = steps; i < NUM_LEDS; i++) {
             // Set the i'th led to red 
-            leds[i] = CHSV(hue++, 255, 255);
-            // Show the leds
+            ledArray[i] = CHSV(hue++, 255, 255);
+            // Show the ledArray
             FastLED.show();
-            // now that we've shown the leds, reset the i'th led to black
-            // leds[i] = CRGB::Black;
+            // now that we've shown the ledArray, reset the i'th led to black
+            // ledArray[i] = CRGB::Black;
             fade4();
             // Wait a little bit before we loop around and do it again
             //delay(10);
@@ -311,18 +252,17 @@ void launchLightShow_4()
         if (steps >= 64) { steps = 0; }
         last = millis();
     }
-    Serial.print("x");
     static byte steps2 = (NUM_LEDS)-1;
     static long last2 = millis();
     if (millis() - last2 >= 200)
     {
         for (int i = steps2; i >= 0; i--) {
             // Set the i'th led to red 
-            leds[i] = CHSV(hue++, 255, 255);
-            // Show the leds
+            ledArray[i] = CHSV(hue++, 255, 255);
+            // Show the ledArray
             FastLED.show();
-            // now that we've shown the leds, reset the i'th led to black
-            // leds[i] = CRGB::Black;
+            // now that we've shown the ledArray, reset the i'th led to black
+            // ledArray[i] = CRGB::Black;
             fade4();
             // Wait a little bit before we loop around and do it again
             //delay(10);
@@ -345,13 +285,13 @@ uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 void rainbow()
 {
     // FastLED's built-in rainbow generator
-    fill_rainbow(leds, NUM_LEDS, gHue, 7);
+    fill_rainbow(ledArray, NUM_LEDS, gHue, 7);
 }
 
 void addGlitter(fract8 chanceOfGlitter)
 {
     if (random8() < chanceOfGlitter) {
-        leds[random16(NUM_LEDS)] += CRGB::White;
+        ledArray[random16(NUM_LEDS)] += CRGB::White;
     }
 }
 
@@ -365,17 +305,17 @@ void rainbowWithGlitter()
 void confetti()
 {
     // random colored speckles that blink in and fade smoothly
-    fadeToBlackBy(leds, NUM_LEDS, 10);
+    fadeToBlackBy(ledArray, NUM_LEDS, 10);
     int pos = random16(NUM_LEDS);
-    leds[pos] += CHSV(gHue + random8(64), 200, 255);
+    ledArray[pos] += CHSV(gHue + random8(64), 200, 255);
 }
 
 void sinelon()
 {
     // a colored dot sweeping back and forth, with fading trails
-    fadeToBlackBy(leds, NUM_LEDS, 20);
+    fadeToBlackBy(ledArray, NUM_LEDS, 20);
     int pos = beatsin16(13, 0, NUM_LEDS - 1);
-    leds[pos] += CHSV(gHue, 255, 192);
+    ledArray[pos] += CHSV(gHue, 255, 192);
 }
 
 void bpm()
@@ -385,16 +325,16 @@ void bpm()
     CRGBPalette16 palette = PartyColors_p;
     uint8_t beat = beatsin8(BeatsPerMinute, 64, 255);
     for (int i = 0; i < NUM_LEDS; i++) { //9948
-        leds[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
+        ledArray[i] = ColorFromPalette(palette, gHue + (i * 2), beat - gHue + (i * 10));
     }
 }
 
 void juggle() {
     // eight colored dots, weaving in and out of sync with each other
-    fadeToBlackBy(leds, NUM_LEDS, 20);
+    fadeToBlackBy(ledArray, NUM_LEDS, 20);
     byte dothue = 0;
     for (int i = 0; i < 8; i++) {
-        leds[beatsin16(i + 7, 0, NUM_LEDS - 1)] |= CHSV(dothue, 200, 255);
+        ledArray[beatsin16(i + 7, 0, NUM_LEDS - 1)] |= CHSV(dothue, 200, 255);
         dothue += 32;
     }
 }
@@ -467,7 +407,7 @@ void Fire2012()
         else {
             pixelnumber = j;
         }
-        leds[pixelnumber] = color;
+        ledArray[pixelnumber] = color;
     }
 }
 
@@ -511,7 +451,7 @@ void launchLightShow_7() {
 				// We use the value at the (i,j) coordinate in the noise
 				// array for our brightness, and the flipped value from (j,i)
 				// for our pixel's hue.
-				leds[XY(i, j)] = CHSV(noise[j][i], 255, noise[i][j]);
+				ledArray[XY(i, j)] = CHSV(noise[j][i], 255, noise[i][j]);
 
 				// You can also explore other ways to constrain the hue used, like below
 				// leds[XY(i,j)] = CHSV(ihue + (noise[j][i]>>2),255,noise[i][j]);
@@ -552,7 +492,7 @@ void pacifica_one_layer(CRGBPalette16& p, uint16_t cistart, uint16_t wavescale, 
         uint16_t sindex16 = sin16(ci) + 32768;
         uint8_t sindex8 = scale16(sindex16, 240);
         CRGB c = ColorFromPalette(p, sindex8, bri, LINEARBLEND);
-        leds[i] += c;
+        ledArray[i] += c;
     }
 }
 
@@ -565,11 +505,11 @@ void pacifica_add_whitecaps()
     for (uint16_t i = 0; i < NUM_LEDS; i++) {
         uint8_t threshold = scale8(sin8(wave), 20) + basethreshold;
         wave += 7;
-        uint8_t l = leds[i].getAverageLight();
+        uint8_t l = ledArray[i].getAverageLight();
         if (l > threshold) {
             uint8_t overage = l - threshold;
             uint8_t overage2 = qadd8(overage, overage);
-            leds[i] += CRGB(overage, overage2, qadd8(overage2, overage2));
+            ledArray[i] += CRGB(overage, overage2, qadd8(overage2, overage2));
         }
     }
 }
@@ -578,9 +518,9 @@ void pacifica_add_whitecaps()
 void pacifica_deepen_colors()
 {
     for (uint16_t i = 0; i < NUM_LEDS; i++) {
-        leds[i].blue = scale8(leds[i].blue, 145);
-        leds[i].green = scale8(leds[i].green, 200);
-        leds[i] |= CRGB(2, 5, 7);
+        ledArray[i].blue = scale8(ledArray[i].blue, 145);
+        ledArray[i].green = scale8(ledArray[i].green, 200);
+        ledArray[i] |= CRGB(2, 5, 7);
     }
 }
 
@@ -605,7 +545,7 @@ void pacifica_loop()
     sCIStart4 -= (deltams2 * beatsin88(257, 4, 6));
 
     // Clear out the LED array to a dim background blue-green
-    fill_solid(leds, NUM_LEDS, CRGB(2, 6, 10));
+    fill_solid(ledArray, NUM_LEDS, CRGB(2, 6, 10));
 
     // Render each of four layers, with different scales and speeds, that vary over time
     pacifica_one_layer(pacifica_palette_1, sCIStart1, beatsin16(3, 11 * 256, 14 * 256), beatsin8(10, 70, 130), 0 - beat16(301));
@@ -673,7 +613,7 @@ void pride()
         uint16_t pixelnumber = i;
         pixelnumber = (NUM_LEDS - 1) - pixelnumber;
 
-        nblend(leds[pixelnumber], newcolor, 64);
+        nblend(ledArray[pixelnumber], newcolor, 64);
     }
 }
 
@@ -703,7 +643,7 @@ void DrawOneFrame2(byte startHue8, int8_t yHueDelta8, int8_t xHueDelta8)
         byte pixelHue = lineStartHue;
         for (byte x = 0; x < kMatrixWidth; x++) {
             pixelHue += xHueDelta8;
-            leds[XY(x, y)] = CHSV(pixelHue, 255, 255);
+            ledArray[XY(x, y)] = CHSV(pixelHue, 255, 255);
         }
     }
 }
@@ -833,7 +773,7 @@ void FillLEDsFromPaletteColors(uint8_t colorIndex)
     uint8_t brightness = 255;
 
     for (int i = 0; i < NUM_LEDS; i++) {
-        leds[i] = ColorFromPalette(currentPalette, colorIndex, brightness, currentBlending);
+        ledArray[i] = ColorFromPalette(currentPalette, colorIndex, brightness, currentBlending);
         colorIndex += 3;
     }
 }

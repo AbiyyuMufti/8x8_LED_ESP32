@@ -11,21 +11,23 @@
 
 #include <ArduinoJson.h>
 #include <EspMQTTClient.h>
-#include <Adafruit_NeoMatrix.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_NeoPixel.h>
+#include <FastLED_NeoMatrix.h>
 
 #define PIN_BATT 34
 #define PIN_LDR 35
 #define PIN_LED 2
 #define WIDTH 8
 #define HEIGHT 8
+#define NUM_LEDS (WIDTH * HEIGHT)
 
 // Global Variables
+
+extern CRGBArray<64> ledArray;
+
 extern byte BRIGHTNESS;
 extern bool IS_ADAPTABLE_TO_LIGHT;
 
-extern Adafruit_NeoMatrix *matrix;
+extern FastLED_NeoMatrix* matrix;
 extern EspMQTTClient *client;
 
 extern byte ESP_NO;
