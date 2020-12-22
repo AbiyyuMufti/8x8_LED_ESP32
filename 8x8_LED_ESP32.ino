@@ -8,11 +8,14 @@
 #include <Adafruit_NeoPixel.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_NeoMatrix.h>
+#include <SimpleKalmanFilter.h>
+#include <FastLED.h>
+#include <PID_v1.h>
 #include "8x8LEDHandler.h"
+#include "8x8_LED_Seq.h"
 
-
-#define BROKER "192.168.0.187"// "mqtt.eclipse.org"
-#define CLNAME "ESP32Cl"
+#define ESPPOSITION 10 
+#define BROKER "192.168.0.73"
 #define SSID "HomeSweetHome"
 #define PASS "1bnAbdillah"
 
@@ -21,69 +24,54 @@ Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(WIDTH, HEIGHT, PIN_LED,
 	NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
 	NEO_GRB + NEO_KHZ800);
 
-EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, CLNAME);
+char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 65) };
+EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientname);
 
-byte BRIGHTNESS = 10;
-String TXT_TEXT = "Default";
-byte TXT_COLOR[3] = { 0, 0, 0 };
-byte TXT_SPEED = 100;
-String MAC_ADR = "";
-String MAC_CHECK = "";
+
 LEDState CurrentState = LightOff;
 bool IS_ADAPTABLE_TO_LIGHT = false;
-unsigned int BatteryState = 0;
-unsigned int LDRValue = 0;
-bool PX_SELECT[8][8] = {
-	 {0, 0, 0, 0, 0, 0, 0, 0},
-	 {0, 0, 0, 0, 0, 0, 0, 0},
-	 {0, 0, 0, 0, 0, 0, 0, 0},
-	 {0, 0, 0, 0, 0, 0, 0, 0},
-	 {0, 0, 0, 0, 0, 0, 0, 0},
-	 {0, 0, 0, 0, 0, 0, 0, 0},
-	 {0, 0, 0, 0, 0, 0, 0, 0},
-	 {0, 0, 0, 0, 0, 0, 0, 0}
-};
-byte PX_COLORS[8][8][3] = {
-	{{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-	{{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-	{{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-	{{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-	{{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-	{{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-	{{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}},
-	{{0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0}}
-};
+byte BRIGHTNESS = 10;
+byte ESP_NO = ESPPOSITION;
+byte PATTERN = 0;
+bool FOR_THIS_ESP = 0;
+
+struct ESPState ESPINFO;
+struct PixelsSetup PIXELS;
+struct TxtGeneratorSetup TEXT;
+struct SingleColorSetup SINGLECOLOR;
+
 
 void onConnectionEstablished()
 {
-	client->publish("LED88ESP32/Address", MAC_ADR);
 	client->subscribe("LED88ESP32/Command", onRxCommand);
+	client->subscribe("LED88ESP32/ESPSelect", onRxESPSelect);
 	client->subscribe("LED88ESP32/Brightness", onRxBrightness);
 	client->subscribe("LED88ESP32/TextGenerator", onRxTextGenerator);
 	client->subscribe("LED88ESP32/Pixels", onRxPixels);
+	client->subscribe("LED88ESP32/LightShow", onRxLightShow);
+	client->subscribe("LED88ESP32/SingleColor/setColor", onRxSingleColorSetColor);
+	client->subscribe("LED88ESP32/SingleColor/setSequence", onRxSingleColorSetSequence);
 }
 
 void setup()
 {
-	setInitialValue();
 	Serial.begin(115200);
 	pinMode(PIN_LED, OUTPUT);
 	pinMode(PIN_LDR, INPUT);
 	pinMode(PIN_BATT, INPUT);
-	setChipID();
-	//client->enableDebuggingMessages();
-	client->setKeepAlive(60);	// Timeout 1 minute
 
-	CurrentState = TextGenerator;
-	TXT_TEXT = MAC_ADR;
-	TXT_COLOR[2] = 255;
+	client->enableDebuggingMessages();
+	client->setKeepAlive(60);	// Timeout 1 minute
+	
+	setInitialValue();
 
 	matrix->begin();
 	matrix->setTextWrap(false);
 	matrix->setBrightness(BRIGHTNESS);
+	setupFastLED();
 }
 
-// Add the main program code into the continuous loop() function
+
 void loop()
 {
 	client->loop();
@@ -107,11 +95,11 @@ void ledRoutine() {
 	case TapToLight:
 		tapPixels();
 		break;
-	case Drumpad:
-		launchDrumpad();
-		break;
 	case LightShow:
 		launchLightShow();
+		break;
+	case SingleColor:
+		launchSingleColor();
 		break;
 	default:
 		turnOffLight();
@@ -119,4 +107,3 @@ void ledRoutine() {
 	}
 	sendESPStatus();
 }
-
