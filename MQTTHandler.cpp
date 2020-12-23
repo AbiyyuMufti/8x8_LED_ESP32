@@ -9,6 +9,11 @@ void sendESPStatus(uint32_t periode) {
 	now = millis();
 	if (now - lastTime >= periode)
 	{
+		Serial.print("For This: ");
+		Serial.print(FOR_THIS_ESP);
+		Serial.print(" :NR: ");
+		Serial.print(ESP_NO);
+		Serial.print(" : State : ");
 		Serial.println(state[CurrentState]);
 		lastTime = now;
 		onTXState();

@@ -12,7 +12,7 @@
 #include "8x8LEDHandler.h"
 #include "8x8_LED_Seq.h"
 
-#define ESPPOSITION 10 
+#define ESPPOSITION 1 
 #define BROKER "192.168.0.73"
 #define SSID "HomeSweetHome"
 #define PASS "1bnAbdillah"
