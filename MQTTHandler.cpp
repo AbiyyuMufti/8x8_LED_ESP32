@@ -5,16 +5,10 @@
 void sendESPStatus(uint32_t periode) {
 	static long lastTime = millis();
 	static long now;
-	static String state[] = { "Invalid", "LightOff", "TextGenerator", "TapToLight", "LightShow", "SingleColor" };
 	now = millis();
 	if (now - lastTime >= periode)
 	{
-		Serial.print("For This: ");
-		Serial.print(FOR_THIS_ESP);
-		Serial.print(" :NR: ");
-		Serial.print(ESP_NO);
-		Serial.print(" : State : ");
-		Serial.println(state[CurrentState]);
+
 		lastTime = now;
 		onTXState();
 	}
@@ -133,7 +127,9 @@ void onRxSetSequence(const String& message) {
 	deserializeJson(receivedMsg, msg);
 	IN_SEQUENCE = true;
 	JsonArray seq = receivedMsg["seq"];
-	ORDER = seq[ESP_NO];
+	ORDER = seq[ESP_NO-1];
+	Serial.print("In Sequence: ");
+	Serial.println(ORDER);
 }
 
 
