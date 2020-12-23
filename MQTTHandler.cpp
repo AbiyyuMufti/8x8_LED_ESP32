@@ -121,6 +121,7 @@ void onRxPixels(const String& message) {
 
 void onRxSetSequence(const String& message) {
 	// Json Message: "{"seq": 3}"
+	// Json Message: "{ "delay": [0, 100, 200, 300, 400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}"
 	static char msg[20];
 	message.toCharArray(msg, 20);
 
