@@ -19,6 +19,7 @@ void sendESPStatus(uint32_t periode) {
 void onTXState() {
 	// { "ADR": MAC_ADRESS, "BAT": value, "LDR" : value}
 	StaticJsonDocument<100> toSend;
+	toSend["ADR"] = ESP_NO;
 	toSend["BAT"] = ESPINFO.BatteryState;
 	toSend["LDR"] = ESPINFO.LDRValue;
 	char buffer[100];
@@ -122,39 +123,7 @@ void onRxPixels(const String& message) {
 }
 
 
-void onRxLightShow(const String& message) {
-	// Json Message: "{"ptr": 16}"
-	static char msg[20];
-	message.toCharArray(msg, 20);
-
-	StaticJsonDocument<20> receivedMsg;
-	deserializeJson(receivedMsg, msg);
-
-	if (FOR_THIS_ESP)
-	{
-		PATTERN = receivedMsg["ptr"];
-	}
-}
-
-
-void onRxSingleColorSetColor(const String& message) {
-	// Json Message: " {"sel": 16, "r": 255, "g": 255, "b": 255} "
-	static char msg[100];
-	message.toCharArray(msg, 100);
-	StaticJsonDocument<100> receivedMsg;
-	deserializeJson(receivedMsg, msg);
-	
-	byte selection = receivedMsg["sel"];
-	if (ESP_NO == selection)
-	{
-		SINGLECOLOR.red = receivedMsg["r"];
-		SINGLECOLOR.green = receivedMsg["g"];
-		SINGLECOLOR.blue = receivedMsg["b"];
-	}
-}
-
-
-void onRxSingleColorSetSequence(const String& message) {
+void onRxSetSequence(const String& message) {
 	// Json Message: "{"seq": 3}"
 	static char msg[20];
 	message.toCharArray(msg, 20);
@@ -163,9 +132,28 @@ void onRxSingleColorSetSequence(const String& message) {
 	deserializeJson(receivedMsg, msg);
 	if (FOR_THIS_ESP)
 	{
-		SINGLECOLOR.sequence = receivedMsg["seq"];
+		LIGHTSHOW.SEQUENCE = receivedMsg["seq"];
 	}
 	
+}
+
+
+void onRxLightShow(const String& message) {
+	// JSON Message: { "sel": 16, "ptr": 20, "r": 255, "g": 255, "b": 255 }
+	static char msg[100];
+	message.toCharArray(msg, 100);
+
+	StaticJsonDocument<100> receivedMsg;
+	deserializeJson(receivedMsg, msg);
+
+	byte selection = receivedMsg["sel"];
+	if (ESP_NO == selection)
+	{
+		LIGHTSHOW.red = receivedMsg["r"];
+		LIGHTSHOW.green = receivedMsg["g"];
+		LIGHTSHOW.blue = receivedMsg["b"];
+		LIGHTSHOW.PATTERN = receivedMsg["ptr"];
+	}
 }
 
 
@@ -182,32 +170,5 @@ void onRxESPSelect(const String& message)
 	if (FOR_THIS_ESP != forThisDevice)
 	{
 		FOR_THIS_ESP = forThisDevice;
-	}
-}
-
-
-void onRxLightShowAdvance(const String& message) {
-	// JSON Message: { "sel": 16, "ptr": 20, "r": 255, "g": 255, "b": 255 }
-	static char msg[100];
-	message.toCharArray(msg, 100);
-
-	StaticJsonDocument<100> receivedMsg;
-	deserializeJson(receivedMsg, msg);
-
-	byte selection = receivedMsg["sel"];
-	byte ptr = receivedMsg["ptr"];
-	if (ESP_NO == selection)
-	{
-		SINGLECOLOR.red = receivedMsg["r"];
-		SINGLECOLOR.green = receivedMsg["g"];
-		SINGLECOLOR.blue = receivedMsg["b"];
-	}
-	if (ptr < 3)
-	{
-		SINGLECOLOR.sequence = ptr;
-	}
-	else
-	{
-		PATTERN = ptr - 2;
 	}
 }

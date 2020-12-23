@@ -8,12 +8,8 @@ void turnOffLight() {
 	static long thisLastTime = millis();
 	static long now;
 	now = millis();
-	if (now - thisLastTime >= 100)
+	if (now - thisLastTime >= 50)
 	{
-		clearArray();
-		SINGLECOLOR.blue = 0;
-		SINGLECOLOR.green = 0;
-		SINGLECOLOR.red = 0;
 		Serial.println("off");
 		matrix->clear();
 		matrix->show();
@@ -58,30 +54,6 @@ void tapPixels() {
 		thisLastTime = now;
 		matrix->show();
 	}
-}
-
-typedef void(*patternList[])();
-// TODO: using array pointer may be better
-void launchLightShow() {
-	static patternList lightShowPattern = {
-		launchLightShow_1,
-		launchLightShow_2,
-		launchLightShow_3,
-		launchLightShow_4,
-		launchLightShow_5,
-		launchLightShow_6,
-		launchLightShow_7,
-		launchLightShow_8,
-		launchLightShow_9,
-		launchLightShow_10,
-		launchLightShow_11,
-		launchLightShow_12,
-		launchLightShow_13,
-		launchLightShow_14,
-		launchLightShow_15,
-		launchLightShow_16
-	}; 
-	lightShowPattern[PATTERN]();
 }
 
 float max3point(float a, float b, float c) {
@@ -129,27 +101,27 @@ void calculateHSV(const byte& r, const byte& g, const byte& b, uint32_t& h, uint
 	h = map(hue, 0, 360, 0, 65536);
 }
 
-void singleColorSeq0(const byte& r, const byte& g, const byte& b) {
+void singleColorSeq0() {
 	static long last = millis();
 	if (millis() - last >= 50)
 	{
-		matrix->fillScreen(matrix->Color(r, g, b));
+		matrix->fillScreen(matrix->Color(LIGHTSHOW.red, LIGHTSHOW.green, LIGHTSHOW.blue));
 		matrix->show();
 		last = millis();
 	}
 }
 
-void singleColorSeq1(const byte& r, const byte& g, const byte& b) {
+void singleColorSeq1() {
 	static long last = millis();
 	static byte brg = 0;
 	static bool go_up = true;
 	if (millis() - last >= 50)
 	{
-		matrix->fillScreen(matrix->Color(r, g, b));
+		matrix->fillScreen(matrix->Color(LIGHTSHOW.red, LIGHTSHOW.green, LIGHTSHOW.blue));
 		if (go_up)
 		{
 			brg++;
-			if (brg >= 100) { go_up = !go_up; }
+			if (brg >= BRIGHTNESS) { go_up = !go_up; }
 		}
 		else
 		{
@@ -162,7 +134,7 @@ void singleColorSeq1(const byte& r, const byte& g, const byte& b) {
 	}
 }
 
-void singleColorSeq2(const byte& r, const byte& g, const byte& b) {
+void singleColorSeq2() {
 	static byte steps = 0;
 	static long last = millis();
 	if (millis() - last >= 75)
@@ -170,8 +142,7 @@ void singleColorSeq2(const byte& r, const byte& g, const byte& b) {
 		matrix->clear();
 		for (byte c = steps; c < 64; c += 3)
 		{
-			ledArray[c] = CRGB(r, g, b);
-			//matrix->setPixelColor(c, matrix->Color(r, g, b)); // Set pixel 'c' to value 'color'
+			ledArray[c] = CRGB(LIGHTSHOW.red, LIGHTSHOW.green, LIGHTSHOW.blue);
 		}
 		steps++;
 		if (steps >= 3) { steps = 0; }
@@ -180,19 +151,18 @@ void singleColorSeq2(const byte& r, const byte& g, const byte& b) {
 	}
 }
 
-void singleColorSeq3(const byte& r, const byte& g, const byte& b) {
+void singleColorSeq3() {
 	uint32_t hue;
 	uint8_t saturation, value;
 	static int32_t steps = 0;
 	static bool dir = false;
 	static long last = millis();
-	calculateHSV(r, g, b, hue, saturation, value);
+	calculateHSV(LIGHTSHOW.red, LIGHTSHOW.green, LIGHTSHOW.blue, hue, saturation, value);
 	if (millis() - last >= 20)
 	{
 		for (int i = -32; i < NUM_LEDS - 32; i++)
 		{
 			uint32_t pixelHue = steps + hue + i*2;
-			//matrix->setPixelColor(i + 32, matrix->gamma32(matrix->ColorHSV(pixelHue, saturation, value)));
 			ledArray[i + 32] = CHSV(pixelHue, saturation, value);
 		}
 		matrix->show();
@@ -212,17 +182,6 @@ void singleColorSeq3(const byte& r, const byte& g, const byte& b) {
 
 }
 
-typedef void (*singleColorList[])(const byte& r, const byte& g, const byte& b);
-singleColorList listSingleColor = { singleColorSeq0, singleColorSeq1, singleColorSeq2, singleColorSeq3 };
-
-void launchSingleColor() {
-	static byte r, g, b, seq = 0;
-	if (seq != SINGLECOLOR.sequence)
-	{
-		seq = SINGLECOLOR.sequence;
-	}
-	listSingleColor[seq](SINGLECOLOR.red, SINGLECOLOR.green, SINGLECOLOR.blue);
-}
 
 void clearArray() {
 	for (byte column = 0; column < 8; column++) {
@@ -230,18 +189,65 @@ void clearArray() {
 			PIXELS.COLORS[row][column][0] = 0;
 			PIXELS.COLORS[row][column][1] = 0;
 			PIXELS.COLORS[row][column][2] = 0;
-			PIXELS.SELECT[row][column] = 0;
 		}
 	}
 }
 
+
+void clearLightShow() {
+	LIGHTSHOW.blue = 0;
+	LIGHTSHOW.green = 0;
+	LIGHTSHOW.red = 0;
+	LIGHTSHOW.PATTERN = 0;
+}
+
+void clearTextGenerator() {
+	TEXT.TEXT = "";
+	TEXT.COLOR[0] = 0;
+	TEXT.COLOR[1] = 0;
+	TEXT.COLOR[2] = 0;
+}
+
+
 void setInitialValue()
 {
-	CurrentState = LightShow;
+	CurrentState = TextGenerator;
 	TEXT.COLOR[0] = 0;
 	TEXT.COLOR[1] = 0;
 	TEXT.COLOR[2] = 255;
 	TEXT.SPEED = 100;
 	TEXT.TEXT = String(ESP_NO);
+	LIGHTSHOW.red = 0;
+	LIGHTSHOW.green = 0;
+	LIGHTSHOW.blue = 0;
+	LIGHTSHOW.PATTERN = 0;
 	clearArray();
+}
+
+typedef void(*patternList[])();
+// TODO: using array pointer may be better
+void launchLightShow() {
+	static patternList lightShowPattern = {
+		singleColorSeq0,
+		launchLightShow_1,
+		launchLightShow_2,
+		launchLightShow_3,
+		launchLightShow_4,
+		launchLightShow_5,
+		launchLightShow_6,
+		launchLightShow_7,
+		launchLightShow_8,
+		launchLightShow_9,
+		launchLightShow_10,
+		launchLightShow_11,
+		launchLightShow_12,
+		launchLightShow_13,
+		launchLightShow_14,
+		launchLightShow_15,
+		launchLightShow_16,
+		singleColorSeq1,
+		singleColorSeq2,
+		singleColorSeq3
+	};
+	lightShowPattern[LIGHTSHOW.PATTERN]();
 }

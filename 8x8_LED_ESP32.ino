@@ -17,6 +17,18 @@
 #define SSID "HomeSweetHome"
 #define PASS "1bnAbdillah"
 
+LEDState CurrentState = LightOff;
+bool IS_ADAPTABLE_TO_LIGHT = false;
+byte BRIGHTNESS = 10;
+byte ESP_NO = ESPPOSITION;
+bool IN_SEQUENCE = false;
+bool FOR_THIS_ESP = false;
+
+struct ESPState ESPINFO;
+struct PixelsSetup PIXELS;
+struct TxtGeneratorSetup TEXT;
+struct LightShowSetup LIGHTSHOW;
+
 CRGBArray<64> ledArray;
 
 FastLED_NeoMatrix* matrix = new FastLED_NeoMatrix(ledArray, WIDTH, HEIGHT, 1, 1,
@@ -24,19 +36,6 @@ FastLED_NeoMatrix* matrix = new FastLED_NeoMatrix(ledArray, WIDTH, HEIGHT, 1, 1,
 
 char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 65) };
 EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientname);
-
-
-LEDState CurrentState = LightOff;
-bool IS_ADAPTABLE_TO_LIGHT = false;
-byte BRIGHTNESS = 10;
-byte ESP_NO = ESPPOSITION;
-byte PATTERN = 0;
-bool FOR_THIS_ESP = 0;
-
-struct ESPState ESPINFO;
-struct PixelsSetup PIXELS;
-struct TxtGeneratorSetup TEXT;
-struct SingleColorSetup SINGLECOLOR;
 
 
 void onConnectionEstablished()
@@ -47,8 +46,7 @@ void onConnectionEstablished()
 	client->subscribe("LED88ESP32/TextGenerator", onRxTextGenerator);
 	client->subscribe("LED88ESP32/Pixels", onRxPixels);
 	client->subscribe("LED88ESP32/LightShow", onRxLightShow);
-	client->subscribe("LED88ESP32/SingleColor/setColor", onRxSingleColorSetColor);
-	client->subscribe("LED88ESP32/SingleColor/setSequence", onRxSingleColorSetSequence);
+	client->subscribe("LED88ESP32/Sequence", onRxSetSequence);
 }
 
 void setup()
@@ -81,6 +79,12 @@ void ledRoutine() {
 	static LEDState oldState = CurrentState;
 	if (CurrentState != oldState) {
 		matrix->clear();
+		if (!IN_SEQUENCE)
+		{
+			clearArray();
+			clearLightShow();
+		}
+		oldState = CurrentState;
 	}
 	switch (CurrentState)
 	{
@@ -95,9 +99,6 @@ void ledRoutine() {
 		break;
 	case LightShow:
 		launchLightShow();
-		break;
-	case SingleColor:
-		launchSingleColor();
 		break;
 	default:
 		turnOffLight();
