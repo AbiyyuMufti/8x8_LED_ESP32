@@ -125,18 +125,15 @@ void onRxPixels(const String& message) {
 
 
 void onRxSetSequence(const String& message) {
-	// Json Message: "{"seq": 3}"
-	// Json Message: "{ "delay": [0, 100, 200, 300, 400, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}"
-	static char msg[20];
-	message.toCharArray(msg, 20);
+	// Json Message: "{ "seq": [0, 1, 2, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]}"
+	static char msg[200];
+	message.toCharArray(msg, 200);
 
-	StaticJsonDocument<20> receivedMsg;
+	StaticJsonDocument<200> receivedMsg;
 	deserializeJson(receivedMsg, msg);
-	if (FOR_THIS_ESP)
-	{
-		LIGHTSHOW.SEQUENCE = receivedMsg["seq"];
-	}
-	
+	IN_SEQUENCE = true;
+	JsonArray seq = receivedMsg["seq"];
+	ORDER = seq[ESP_NO];
 }
 
 

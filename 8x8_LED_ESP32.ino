@@ -12,16 +12,21 @@
 #include "8x8LEDHandler.h"
 #include "8x8_LED_Seq.h"
 
-#define ESPPOSITION 1 
-#define BROKER "192.168.0.73"
-#define SSID "HomeSweetHome"
-#define PASS "1bnAbdillah"
+#define ESPPOSITION 3 
+#define BROKER "192.168.188.225"
+//#define SSID "HomeSweetHome"
+//#define PASS "1bnAbdillah"
+#define SSID "FRITZ!Box 7590 VL"
+#define PASS "56616967766283031728"
 
-LEDState CurrentState = LightOff;
+
+LEDState CurrentState;
+bool USE_LDR = 1;
 bool IS_ADAPTABLE_TO_LIGHT = false;
-byte BRIGHTNESS = 10;
+byte BRIGHTNESS = 20;
 byte ESP_NO = ESPPOSITION;
 bool IN_SEQUENCE = false;
+byte ORDER = 1;
 bool FOR_THIS_ESP = false;
 
 struct ESPState ESPINFO;
@@ -34,7 +39,7 @@ CRGBArray<64> ledArray;
 FastLED_NeoMatrix* matrix = new FastLED_NeoMatrix(ledArray, WIDTH, HEIGHT, 1, 1,
 	NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE);
 
-char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 65) };
+char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 64) };
 EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientname);
 
 
@@ -46,7 +51,7 @@ void onConnectionEstablished()
 	client->subscribe("LED88ESP32/TextGenerator", onRxTextGenerator);
 	client->subscribe("LED88ESP32/Pixels", onRxPixels);
 	client->subscribe("LED88ESP32/LightShow", onRxLightShow);
-	client->subscribe("LED88ESP32/Sequence", onRxSetSequence);
+	client->subscribe("LED88ESP32/PlayInSequence", onRxSetSequence);
 }
 
 void setup()
@@ -72,6 +77,7 @@ void loop()
 {
 	client->loop();
 	ledRoutine();
+	checkSequence();
 }
 
 void ledRoutine() {
@@ -79,11 +85,6 @@ void ledRoutine() {
 	static LEDState oldState = CurrentState;
 	if (CurrentState != oldState) {
 		matrix->clear();
-		if (!IN_SEQUENCE)
-		{
-			clearArray();
-			clearLightShow();
-		}
 		oldState = CurrentState;
 	}
 	switch (CurrentState)
@@ -105,4 +106,25 @@ void ledRoutine() {
 		break;
 	}
 	sendESPStatus();
+}
+void checkSequence() {
+	static long last = millis();
+	static LEDState nextState;
+	static bool once = false; 
+	if (IN_SEQUENCE)
+	{
+
+		if (CurrentState != LightOff)
+		{
+			nextState = CurrentState;
+		}
+		if (millis() - last <= ORDER * 1000) {
+			CurrentState = LightOff;
+		}
+		else
+		{
+			CurrentState = nextState;
+			IN_SEQUENCE = false;
+		}
+	}
 }

@@ -20,9 +20,18 @@ void calculateESPState()
 
 	BattFil = batFilter.updateEstimate(analogRead(PIN_BATT));
 	LDRValFil = ldrFilter.updateEstimate(analogRead(PIN_LDR));
-
-	ESPINFO.BatteryState = map(BattFil, 0, 4094, 0, 100);
-	ESPINFO.LDRValue = map(LDRValFil, 0, 4094, 0, 100);
+	if (USE_LDR)
+	{
+		ESPINFO.BatteryState = map(BattFil, 0, 4094, 0, 100);
+		ESPINFO.LDRValue = map(LDRValFil, 0, 4094, 0, 100);
+	}
+	else
+	{
+		ESPINFO.BatteryState = 0;
+		ESPINFO.LDRValue = 0;
+	}
+	
+	
 }
 
 void brightnessControl() {
@@ -36,7 +45,7 @@ void brightnessControl() {
 	calculateESPState();
 	
 	Input = (double)LDRValFil;
-	if (IS_ADAPTABLE_TO_LIGHT)
+	if (IS_ADAPTABLE_TO_LIGHT && USE_LDR)
 	{
 		if (!called_once)
 		{

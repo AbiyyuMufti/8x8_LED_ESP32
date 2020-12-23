@@ -8,6 +8,12 @@ void turnOffLight() {
 	static long thisLastTime = millis();
 	static long now;
 	now = millis();
+	if (!IN_SEQUENCE)
+	{
+		TEXT.TEXT = "";
+		clearArray();
+		clearLightShow();
+	}
 	if (now - thisLastTime >= 50)
 	{
 		Serial.println("off");

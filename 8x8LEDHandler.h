@@ -24,6 +24,7 @@
 
 extern CRGBArray<NUM_LEDS> ledArray;
 
+extern bool USE_LDR;
 extern byte BRIGHTNESS;
 extern bool IS_ADAPTABLE_TO_LIGHT;
 
@@ -32,6 +33,7 @@ extern EspMQTTClient *client;
 
 extern byte ESP_NO;
 extern bool IN_SEQUENCE;
+extern byte ORDER;
 extern bool FOR_THIS_ESP;
 
 enum LEDState
@@ -82,6 +84,7 @@ extern struct LightShowSetup LIGHTSHOW;
 
 void brightnessControl();
 void ledRoutine();
+void checkSequence();
 void setInitialValue();
 
 // function that drives sequenz of the led's lighting
