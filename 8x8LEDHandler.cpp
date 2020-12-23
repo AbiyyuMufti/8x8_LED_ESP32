@@ -162,11 +162,10 @@ void singleColorSeq3() {
 	{
 		for (int i = -32; i < NUM_LEDS - 32; i++)
 		{
-			uint32_t pixelHue = steps + hue + i*2;
+			uint32_t pixelHue = steps + hue + i;
 			ledArray[i + 32] = CHSV(pixelHue, saturation, value);
 		}
 		matrix->show();
-		Serial.println(steps);
 		if (dir)
 		{
 			steps++;

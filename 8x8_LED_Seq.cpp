@@ -180,6 +180,7 @@ void launchLightShow_2()
         steps++;
         if (steps > NUM_LEDS/2){steps = 0;}
         last = millis();
+        FastLED.show();
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -658,11 +659,9 @@ void launchLightShow_10()
     int32_t xHueDelta32 = ((int32_t)cos16(ms * (39 / 1)) * (310 / kMatrixHeight));
     DrawOneFrame2(ms / 65536, yHueDelta32 / 32768, xHueDelta32 / 32768);
     if (ms < 5000) {
-		Serial.print("y");
         FastLED.setBrightness(scale8(BRIGHTNESS, (ms * 256) / 5000));
     }
     else {
-		Serial.print("x");
         FastLED.setBrightness(BRIGHTNESS);
     }
     FastLED.show();
