@@ -50,9 +50,6 @@ void onRxCommand(const String& message) {
 		else if (cmd.equals("LightShow")){
 			CurrentState = LightShow;
 		}
-		else if (cmd.equals("SingleColor")) {
-			CurrentState = SingleColor;
-		}
 		else if (cmd.equals("GetState")){
 			onTXState();
 		}
@@ -111,11 +108,10 @@ void onRxPixels(const String& message) {
 	StaticJsonDocument<100> receivedMsg;
 	deserializeJson(receivedMsg, msg);
 
-	if (true)
+	if (FOR_THIS_ESP)
 	{
 		byte col = receivedMsg["col"];
 		byte row = receivedMsg["row"];
-		PIXELS.SELECT[col][row] = receivedMsg["on"];
 		PIXELS.COLORS[col][row][0] = receivedMsg["r"];
 		PIXELS.COLORS[col][row][1] = receivedMsg["g"];
 		PIXELS.COLORS[col][row][2] = receivedMsg["b"];
