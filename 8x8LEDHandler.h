@@ -11,24 +11,29 @@
 
 #include <ArduinoJson.h>
 #include <EspMQTTClient.h>
-#include <Adafruit_NeoMatrix.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_NeoPixel.h>
+#include <FastLED_NeoMatrix.h>
 
 #define PIN_BATT 34
 #define PIN_LDR 35
 #define PIN_LED 2
 #define WIDTH 8
 #define HEIGHT 8
+#define NUM_LEDS (WIDTH * HEIGHT)
 
 // Global Variables
+
+extern CRGBArray<NUM_LEDS> ledArray;
+
+extern bool USE_LDR;
 extern byte BRIGHTNESS;
 extern bool IS_ADAPTABLE_TO_LIGHT;
 
-extern Adafruit_NeoMatrix *matrix;
+extern FastLED_NeoMatrix* matrix;
 extern EspMQTTClient *client;
 
 extern byte ESP_NO;
+extern bool IN_SEQUENCE;
+extern byte ORDER;
 extern bool FOR_THIS_ESP;
 
 enum LEDState
@@ -37,9 +42,10 @@ enum LEDState
 	LightOff,
 	TextGenerator,
 	TapToLight,
-	LightShow,
-	SingleColor
+	LightShow
 };
+
+extern LEDState CurrentState;
 
 struct ESPState 
 {
@@ -51,7 +57,6 @@ extern struct ESPState ESPINFO;
 
 struct PixelsSetup
 {
-	bool SELECT[8][8];
 	byte COLORS[8][8][3];
 };
 
@@ -66,21 +71,20 @@ struct TxtGeneratorSetup
 
 extern struct TxtGeneratorSetup TEXT;
 
-struct SingleColorSetup
-{
+struct LightShowSetup {
+	byte PATTERN;
 	byte red;
 	byte green;
 	byte blue;
-	byte sequence;
+	byte SEQUENCE;
 };
 
-extern struct SingleColorSetup SINGLECOLOR;
-extern byte PATTERN;
-extern LEDState CurrentState;
+extern struct LightShowSetup LIGHTSHOW;
+
 
 void brightnessControl();
 void ledRoutine();
-
+void checkSequence();
 void setInitialValue();
 
 // function that drives sequenz of the led's lighting
@@ -88,8 +92,8 @@ void turnOffLight();
 void generateText();
 void tapPixels();
 void launchLightShow();
-void launchSingleColor();
 void clearArray();
+void clearLightShow();
 
 
 // callback function when massage arrive form the subscirbed topic
@@ -97,9 +101,8 @@ void onRxCommand(const String& message);
 void onRxBrightness(const String& message);
 void onRxTextGenerator(const String& message);
 void onRxPixels(const String& message);
+void onRxSetSequence(const String& message);
 void onRxLightShow(const String& message);
-void onRxSingleColorSetColor(const String& message);
-void onRxSingleColorSetSequence(const String& message);
 void onRxESPSelect(const String& message);
 void onTXState();
 void sendESPStatus(uint32_t periode = 5000);

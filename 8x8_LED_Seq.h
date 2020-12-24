@@ -1,12 +1,10 @@
 #ifndef _8X8_LED_SEQ_h
 #define _8X8_LED_SEQ_h
 
-#include <FastLED.h>
 #include "8x8LEDHandler.h"
 
 #define COLOR_ORDER GRB
 #define CHIPSET     WS2811
-#define NUM_LEDS (8 * 8)
 
 void setupFastLED();
 

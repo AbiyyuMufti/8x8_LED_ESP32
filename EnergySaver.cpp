@@ -20,9 +20,18 @@ void calculateESPState()
 
 	BattFil = batFilter.updateEstimate(analogRead(PIN_BATT));
 	LDRValFil = ldrFilter.updateEstimate(analogRead(PIN_LDR));
-
-	ESPINFO.BatteryState = map(BattFil, 0, 4094, 0, 100);
-	ESPINFO.LDRValue = map(LDRValFil, 0, 4094, 0, 100);
+	if (USE_LDR)
+	{
+		ESPINFO.BatteryState = map(BattFil, 0, 4094, 0, 100);
+		ESPINFO.LDRValue = map(LDRValFil, 0, 4094, 0, 100);
+	}
+	else
+	{
+		ESPINFO.BatteryState = 0;
+		ESPINFO.LDRValue = 0;
+	}
+	
+	
 }
 
 void brightnessControl() {
@@ -30,13 +39,13 @@ void brightnessControl() {
 	static const double Kp = 0.1, Ki = 0.0001, Kd = 0;
 	static PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, REVERSE);
 
-	static int oldBrightness = matrix->gamma8(matrix->getBrightness());
+	static int oldBrightness = BRIGHTNESS;
 	static bool called_once = true;
 	
 	calculateESPState();
 	
 	Input = (double)LDRValFil;
-	if (IS_ADAPTABLE_TO_LIGHT)
+	if (IS_ADAPTABLE_TO_LIGHT && USE_LDR)
 	{
 		if (!called_once)
 		{
@@ -57,7 +66,7 @@ void brightnessControl() {
 			Serial.println("Set to manual");
 			myPID.SetMode(MANUAL);
 			called_once = false;
-			oldBrightness = matrix->getBrightness();
+			oldBrightness = BRIGHTNESS;
 		}
 		if (oldBrightness != BRIGHTNESS) {
 			matrix->setBrightness(BRIGHTNESS);

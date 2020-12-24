@@ -3,42 +3,42 @@
     Name:       8x8_LED_ESP32.ino
 */
 
+#include <Adafruit_GFX.h>
+#include <FastLED_NeoMatrix.h>
 #include <ArduinoJson.h>
 #include <EspMQTTClient.h>
-#include <Adafruit_NeoPixel.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_NeoMatrix.h>
 #include <SimpleKalmanFilter.h>
-#include <FastLED.h>
 #include <PID_v1.h>
 #include "8x8LEDHandler.h"
 #include "8x8_LED_Seq.h"
 
-#define ESPPOSITION 10 
-#define BROKER "192.168.0.73"
-#define SSID "HomeSweetHome"
-#define PASS "1bnAbdillah"
-
-Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(WIDTH, HEIGHT, PIN_LED,
-	NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT +
-	NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE,
-	NEO_GRB + NEO_KHZ800);
-
-char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 65) };
-EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientname);
+#define ESPPOSITION 2 
+#define BROKER "192.168.188.225"
+#define SSID "FRITZ!Box 7590 VL"
+#define PASS "56616967766283031728"
 
 
-LEDState CurrentState = LightOff;
+LEDState CurrentState;
+bool USE_LDR = 0;
 bool IS_ADAPTABLE_TO_LIGHT = false;
-byte BRIGHTNESS = 10;
+byte BRIGHTNESS = 20;
 byte ESP_NO = ESPPOSITION;
-byte PATTERN = 0;
-bool FOR_THIS_ESP = 0;
+bool IN_SEQUENCE = false;
+byte ORDER = 1;
+bool FOR_THIS_ESP = false;
 
 struct ESPState ESPINFO;
 struct PixelsSetup PIXELS;
 struct TxtGeneratorSetup TEXT;
-struct SingleColorSetup SINGLECOLOR;
+struct LightShowSetup LIGHTSHOW;
+
+CRGBArray<64> ledArray;
+
+FastLED_NeoMatrix* matrix = new FastLED_NeoMatrix(ledArray, WIDTH, HEIGHT, 1, 1,
+	NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE);
+
+char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 64) };
+EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientname);
 
 
 void onConnectionEstablished()
@@ -49,8 +49,7 @@ void onConnectionEstablished()
 	client->subscribe("LED88ESP32/TextGenerator", onRxTextGenerator);
 	client->subscribe("LED88ESP32/Pixels", onRxPixels);
 	client->subscribe("LED88ESP32/LightShow", onRxLightShow);
-	client->subscribe("LED88ESP32/SingleColor/setColor", onRxSingleColorSetColor);
-	client->subscribe("LED88ESP32/SingleColor/setSequence", onRxSingleColorSetSequence);
+	client->subscribe("LED88ESP32/PlayInSequence", onRxSetSequence);
 }
 
 void setup()
@@ -76,6 +75,7 @@ void loop()
 {
 	client->loop();
 	ledRoutine();
+	checkSequence();
 }
 
 void ledRoutine() {
@@ -83,6 +83,7 @@ void ledRoutine() {
 	static LEDState oldState = CurrentState;
 	if (CurrentState != oldState) {
 		matrix->clear();
+		oldState = CurrentState;
 	}
 	switch (CurrentState)
 	{
@@ -98,12 +99,29 @@ void ledRoutine() {
 	case LightShow:
 		launchLightShow();
 		break;
-	case SingleColor:
-		launchSingleColor();
-		break;
 	default:
 		turnOffLight();
 		break;
 	}
 	sendESPStatus();
+}
+
+static String state[] = { "Invalid", "LightOff", "TextGenerator", "TapToLight", "LightShow" };
+void checkSequence() {
+	static long last = millis();
+	static LEDState nextState;
+	static bool once = false; 
+	if (IN_SEQUENCE)
+	{
+		if (CurrentState != LightOff)
+		{
+			last = millis();
+			nextState = CurrentState;
+		}
+		CurrentState = LightOff;
+		if (millis() - last >= ORDER * 1000) {
+			CurrentState = nextState;
+			IN_SEQUENCE = false;
+		}
+	}
 }
