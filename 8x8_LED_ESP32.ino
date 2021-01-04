@@ -22,6 +22,7 @@ LEDState CurrentState;
 bool USE_LDR = 0;
 bool IS_ADAPTABLE_TO_LIGHT = false;
 byte BRIGHTNESS = 20;
+uint32_t IDLETIME = 0;
 byte ESP_NO = ESPPOSITION;
 bool IN_SEQUENCE = false;
 byte ORDER = 1;
@@ -123,5 +124,23 @@ void checkSequence() {
 			CurrentState = nextState;
 			IN_SEQUENCE = false;
 		}
+	}
+}
+
+void checkActivity() {
+	// when you go to sleep ?
+	// no activity and connection after specified time.
+	// command to go to sleep.
+	static unsigned long lastTime = millis();
+	if (millis() - lastTime >= 1000)
+	{
+		IDLETIME++;
+		lastTime = millis();
+	}
+	// go to sleep when after 1/2 hour no activity, despite being connected with MQTT broker or
+	// when after 10 minutes no activity detected and not connected to WIFI or MQTT broker
+	if ((!client->isConnected() && IDLETIME >= 600) || (IDLETIME >= 1800))
+	{
+		device_go_to_sleep();
 	}
 }

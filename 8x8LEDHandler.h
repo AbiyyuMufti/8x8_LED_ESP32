@@ -15,7 +15,7 @@
 
 #define PIN_BATT 34
 #define PIN_LDR 35
-#define PIN_LED 2
+#define PIN_LED 5
 #define WIDTH 8
 #define HEIGHT 8
 #define NUM_LEDS (WIDTH * HEIGHT)
@@ -27,6 +27,7 @@ extern CRGBArray<NUM_LEDS> ledArray;
 extern bool USE_LDR;
 extern byte BRIGHTNESS;
 extern bool IS_ADAPTABLE_TO_LIGHT;
+extern uint32_t IDLETIME;
 
 extern FastLED_NeoMatrix* matrix;
 extern EspMQTTClient *client;
@@ -106,6 +107,9 @@ void onRxLightShow(const String& message);
 void onRxESPSelect(const String& message);
 void onTXState();
 void sendESPStatus(uint32_t periode = 5000);
+
+// energysaving functions
+void device_go_to_sleep();
 
 #endif
 

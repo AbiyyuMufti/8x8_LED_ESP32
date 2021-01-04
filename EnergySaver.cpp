@@ -30,8 +30,6 @@ void calculateESPState()
 		ESPINFO.BatteryState = 0;
 		ESPINFO.LDRValue = 0;
 	}
-	
-	
 }
 
 void brightnessControl() {
@@ -97,4 +95,32 @@ void brightnessControl() {
 	Serial.print(ESPINFO.LDRValue);
 	Serial.print(" % ");
 	Serial.println();*/
+}
+
+void callback() {
+	//placeholder callback function
+}
+
+void device_go_to_sleep() {
+#define uS_TO_S_FACTOR 1000000ULL  /* Conversion factor for micro seconds to seconds */	
+#define Threshold 40 /* Greater the value, more the sensitivity */	
+
+	// turning off the LED
+	matrix->clear();
+	matrix->show();
+	delay(1000);
+	// configure the wake up source
+
+	//// wake up with timer
+	//esp_sleep_enable_timer_wakeup(60 * uS_TO_S_FACTOR);
+	
+	// sleep up with touchpad
+	touchAttachInterrupt(T0, callback, Threshold);
+	touchAttachInterrupt(T1, callback, Threshold);
+	touchAttachInterrupt(T2, callback, Threshold);
+	touchAttachInterrupt(T3, callback, Threshold);
+	esp_sleep_enable_touchpad_wakeup();
+	
+	// go to deep sleep
+	esp_deep_sleep_start();
 }

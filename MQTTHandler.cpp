@@ -52,12 +52,15 @@ void onRxCommand(const String& message) {
 		else if (cmd.equals("GetState")){
 			onTXState();
 		}
+		else if (cmd.equals("GoSleep")) {
+			device_go_to_sleep();
+		}
 		else
 		{
 			CurrentState = Invalid;
 		}
 	}
-
+	IDLETIME = 0;
 }
 
 
@@ -76,6 +79,7 @@ void onRxBrightness(const String& message) {
 	{
 		IS_ADAPTABLE_TO_LIGHT = adp;
 	}
+	IDLETIME = 0;
 }
 
 
@@ -96,6 +100,7 @@ void onRxTextGenerator(const String& message) {
 		TEXT.COLOR[2] = receivedMsg["b"];
 		TEXT.SPEED = map(receivedMsg["spd"], 50, 255, 150, 50);
 	}
+	IDLETIME = 0;
 }
 
 
@@ -115,6 +120,7 @@ void onRxPixels(const String& message) {
 		PIXELS.COLORS[col][row][1] = receivedMsg["g"];
 		PIXELS.COLORS[col][row][2] = receivedMsg["b"];
 	}
+	IDLETIME = 0;
 }
 
 
@@ -130,6 +136,7 @@ void onRxSetSequence(const String& message) {
 	ORDER = seq[ESP_NO-1];
 	Serial.print("In Sequence: ");
 	Serial.println(ORDER);
+	IDLETIME = 0;
 }
 
 
@@ -149,6 +156,7 @@ void onRxLightShow(const String& message) {
 		LIGHTSHOW.blue = receivedMsg["b"];
 		LIGHTSHOW.PATTERN = receivedMsg["ptr"];
 	}
+	IDLETIME = 0;
 }
 
 
@@ -166,4 +174,5 @@ void onRxESPSelect(const String& message)
 	{
 		FOR_THIS_ESP = forThisDevice;
 	}
+	IDLETIME = 0;
 }
