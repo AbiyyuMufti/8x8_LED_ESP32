@@ -8,7 +8,6 @@ void sendESPStatus(uint32_t periode) {
 	now = millis();
 	if (now - lastTime >= periode)
 	{
-
 		lastTime = now;
 		onTXState();
 	}
@@ -29,8 +28,8 @@ void onTXState() {
 
 void onRxCommand(const String& message) {
 	// JSON Message: { "cmd": LightOff }
-	static char msg[50];
-	message.toCharArray(msg, 50);
+	static char msg[100];
+	message.toCharArray(msg, 100);
 
 	StaticJsonDocument<100> receivedMsg;
 	deserializeJson(receivedMsg, msg);
@@ -53,7 +52,15 @@ void onRxCommand(const String& message) {
 			onTXState();
 		}
 		else if (cmd.equals("GoSleep")) {
-			device_go_to_sleep();
+			String time = receivedMsg["sleeptime"];
+			uint16_t h = time.substring(0, 2).toInt();
+			uint16_t m = time.substring(3, 5).toInt();
+			uint16_t sleeptime = h * 60 * 60 + m * 60;
+			matrix->clear();
+			matrix->show();
+			delay(500);
+			beforesleep();
+			device_go_to_sleep(sleeptime);
 		}
 		else
 		{
@@ -174,5 +181,10 @@ void onRxESPSelect(const String& message)
 	{
 		FOR_THIS_ESP = forThisDevice;
 	}
+	IDLETIME = 0;
+}
+
+
+void onRxCallback(const String& message) {
 	IDLETIME = 0;
 }
