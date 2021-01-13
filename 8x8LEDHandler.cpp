@@ -16,7 +16,6 @@ void turnOffLight() {
 	}
 	if (now - thisLastTime >= 50)
 	{
-		Serial.println("off");
 		matrix->clear();
 		matrix->show();
 		thisLastTime = now;
@@ -187,7 +186,6 @@ void singleColorSeq3() {
 
 }
 
-
 void clearArray() {
 	for (byte column = 0; column < 8; column++) {
 		for (byte row = 0; row < 8; row++) {
@@ -197,7 +195,6 @@ void clearArray() {
 		}
 	}
 }
-
 
 void clearLightShow() {
 	LIGHTSHOW.blue = 0;
@@ -213,10 +210,17 @@ void clearTextGenerator() {
 	TEXT.COLOR[2] = 0;
 }
 
-
 void setInitialValue()
 {
-	CurrentState = TextGenerator;
+	if (bootCount == 1)
+	{
+		Serial.print("Init State");
+		CurrentState = TextGenerator;
+	}
+	else
+	{
+		CurrentState = LightOff;
+	}
 	TEXT.COLOR[0] = 0;
 	TEXT.COLOR[1] = 0;
 	TEXT.COLOR[2] = 255;
