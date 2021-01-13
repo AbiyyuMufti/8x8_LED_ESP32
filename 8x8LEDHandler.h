@@ -36,6 +36,8 @@ extern byte ESP_NO;
 extern bool IN_SEQUENCE;
 extern byte ORDER;
 extern bool FOR_THIS_ESP;
+extern RTC_DATA_ATTR unsigned int bootCount;
+
 
 enum LEDState
 {
@@ -86,6 +88,7 @@ extern struct LightShowSetup LIGHTSHOW;
 void brightnessControl();
 void ledRoutine();
 void checkSequence();
+void checkActivity();
 void setInitialValue();
 
 // function that drives sequenz of the led's lighting
@@ -105,11 +108,14 @@ void onRxPixels(const String& message);
 void onRxSetSequence(const String& message);
 void onRxLightShow(const String& message);
 void onRxESPSelect(const String& message);
+void onRxCallback(const String& message);
 void onTXState();
 void sendESPStatus(uint32_t periode = 5000);
 
 // energysaving functions
-void device_go_to_sleep();
-
+void device_go_to_sleep(uint16_t sleeptime_seconds = 0);
+void beforesleep();
+void print_wakeup_reason();
+void print_wakeup_touchpad();
 #endif
 
