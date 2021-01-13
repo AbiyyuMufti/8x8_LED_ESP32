@@ -112,7 +112,7 @@ void ledRoutine() {
 		turnOffLight();
 		break;
 	}
-	sendESPStatus(500);
+	sendESPStatus(1000);
 }
 
 static String state[] = { "Invalid", "LightOff", "TextGenerator", "TapToLight", "LightShow" };
