@@ -8,7 +8,6 @@ void sendESPStatus(uint32_t periode) {
 	now = millis();
 	if (now - lastTime >= periode)
 	{
-
 		lastTime = now;
 		onTXState();
 	}
@@ -29,8 +28,8 @@ void onTXState() {
 
 void onRxCommand(const String& message) {
 	// JSON Message: { "cmd": LightOff }
-	static char msg[50];
-	message.toCharArray(msg, 50);
+	static char msg[100];
+	message.toCharArray(msg, 100);
 
 	StaticJsonDocument<100> receivedMsg;
 	deserializeJson(receivedMsg, msg);
@@ -52,12 +51,23 @@ void onRxCommand(const String& message) {
 		else if (cmd.equals("GetState")){
 			onTXState();
 		}
+		else if (cmd.equals("GoSleep")) {
+			String time = receivedMsg["sleeptime"];
+			uint16_t h = time.substring(0, 2).toInt();
+			uint16_t m = time.substring(3, 5).toInt();
+			uint16_t sleeptime = h * 60 * 60 + m * 60;
+			matrix->clear();
+			matrix->show();
+			delay(500);
+			beforesleep();
+			device_go_to_sleep(sleeptime);
+		}
 		else
 		{
 			CurrentState = Invalid;
 		}
 	}
-
+	IDLETIME = 0;
 }
 
 
@@ -76,6 +86,7 @@ void onRxBrightness(const String& message) {
 	{
 		IS_ADAPTABLE_TO_LIGHT = adp;
 	}
+	IDLETIME = 0;
 }
 
 
@@ -96,6 +107,7 @@ void onRxTextGenerator(const String& message) {
 		TEXT.COLOR[2] = receivedMsg["b"];
 		TEXT.SPEED = map(receivedMsg["spd"], 50, 255, 150, 50);
 	}
+	IDLETIME = 0;
 }
 
 
@@ -115,6 +127,7 @@ void onRxPixels(const String& message) {
 		PIXELS.COLORS[col][row][1] = receivedMsg["g"];
 		PIXELS.COLORS[col][row][2] = receivedMsg["b"];
 	}
+	IDLETIME = 0;
 }
 
 
@@ -130,6 +143,7 @@ void onRxSetSequence(const String& message) {
 	ORDER = seq[ESP_NO-1];
 	Serial.print("In Sequence: ");
 	Serial.println(ORDER);
+	IDLETIME = 0;
 }
 
 
@@ -149,6 +163,7 @@ void onRxLightShow(const String& message) {
 		LIGHTSHOW.blue = receivedMsg["b"];
 		LIGHTSHOW.PATTERN = receivedMsg["ptr"];
 	}
+	IDLETIME = 0;
 }
 
 
@@ -166,4 +181,10 @@ void onRxESPSelect(const String& message)
 	{
 		FOR_THIS_ESP = forThisDevice;
 	}
+	IDLETIME = 0;
+}
+
+
+void onRxCallback(const String& message) {
+	IDLETIME = 0;
 }
