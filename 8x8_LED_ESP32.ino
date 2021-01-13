@@ -12,14 +12,14 @@
 #include "8x8LEDHandler.h"
 #include "8x8_LED_Seq.h"
 
-#define ESPPOSITION 2 
+#define ESPPOSITION 1 
 #define BROKER "192.168.188.225"
 #define SSID "FRITZ!Box 7590 VL"
 #define PASS "56616967766283031728"
-
+#define USINGLDRSENSOR true
 
 LEDState CurrentState;
-bool USE_LDR = 0;
+bool USE_LDR = USINGLDRSENSOR;
 bool IS_ADAPTABLE_TO_LIGHT = false;
 byte BRIGHTNESS = 20;
 uint32_t IDLETIME = 0;
@@ -112,7 +112,7 @@ void ledRoutine() {
 		turnOffLight();
 		break;
 	}
-	sendESPStatus();
+	sendESPStatus(500);
 }
 
 static String state[] = { "Invalid", "LightOff", "TextGenerator", "TapToLight", "LightShow" };
