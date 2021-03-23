@@ -212,25 +212,26 @@ void clearTextGenerator() {
 
 void setInitialValue()
 {
-	if (bootCount == 1)
-	{
-		Serial.print("Init State");
-		CurrentState = TextGenerator;
-	}
-	else
-	{
-		CurrentState = LightOff;
-	}
 	TEXT.COLOR[0] = 0;
 	TEXT.COLOR[1] = 0;
 	TEXT.COLOR[2] = 255;
 	TEXT.SPEED = 100;
-	TEXT.TEXT = String(ESP_NO);
 	LIGHTSHOW.red = 0;
 	LIGHTSHOW.green = 0;
 	LIGHTSHOW.blue = 0;
 	LIGHTSHOW.PATTERN = 0;
 	clearArray();
+	if (bootCount == 1)
+	{
+		Serial.print("Init State");
+		CurrentState = TextGenerator;
+		TEXT.TEXT = String(ESP_NO);
+	}
+	else
+	{
+		CurrentState = TapToLight;
+		PIXELS.COLORS[0][0][0] = 255;
+	}
 }
 
 typedef void(*patternList[])();

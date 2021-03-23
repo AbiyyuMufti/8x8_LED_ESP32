@@ -136,7 +136,7 @@ void onRxSetSequence(const String& message) {
 	static char msg[200];
 	message.toCharArray(msg, 200);
 
-	StaticJsonDocument<200> receivedMsg;
+	StaticJsonDocument<384> receivedMsg;
 	deserializeJson(receivedMsg, msg);
 	IN_SEQUENCE = true;
 	JsonArray seq = receivedMsg["seq"];
@@ -170,15 +170,19 @@ void onRxLightShow(const String& message) {
 void onRxESPSelect(const String& message)
 {
 	// Json Message: "{"sel": [true, true, true, true, true, true, false, true, true, true, false, true, true, false, true, false]}"
-	static char msg[120];
-	message.toCharArray(msg, 120);
-	StaticJsonDocument<256> receivedMsg;
+	static char msg[200];
+	message.toCharArray(msg, 200);
+	StaticJsonDocument<384> receivedMsg;
 	deserializeJson(receivedMsg, msg);
 
 	JsonArray sel = receivedMsg["sel"];
+
 	bool forThisDevice = sel[ESP_NO - 1];
+	Serial.print(forThisDevice);
+	Serial.print(" HMMMMMMM\n");
 	if (FOR_THIS_ESP != forThisDevice)
 	{
+		Serial.print("FOOOOOR THIS ESP!!!!!!\n");
 		FOR_THIS_ESP = forThisDevice;
 	}
 	IDLETIME = 0;

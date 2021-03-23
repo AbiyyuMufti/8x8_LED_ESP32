@@ -12,14 +12,16 @@
 #include "8x8LEDHandler.h"
 #include "8x8_LED_Seq.h"
 
-#define ESPPOSITION 1 
+#define ESPPOSITION 16
 #define BROKER "192.168.188.225"
 #define SSID "FRITZ!Box 7590 VL"
 #define PASS "56616967766283031728"
 #define USINGLDRSENSOR true
+#define DETECTBATTERY false
 
 LEDState CurrentState;
 bool USE_LDR = USINGLDRSENSOR;
+bool DETECT_BAT = DETECTBATTERY;
 bool IS_ADAPTABLE_TO_LIGHT = false;
 byte BRIGHTNESS = 20;
 uint32_t IDLETIME = 0;
@@ -36,8 +38,8 @@ struct LightShowSetup LIGHTSHOW;
 
 CRGBArray<64> ledArray;
 
-FastLED_NeoMatrix* matrix = new FastLED_NeoMatrix(ledArray, WIDTH, HEIGHT, 1, 1,
-	NEO_MATRIX_BOTTOM + NEO_MATRIX_RIGHT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE);
+FastLED_NeoMatrix* matrix = new FastLED_NeoMatrix(ledArray, 8, 8, 1, 1,
+	NEO_MATRIX_TOP + NEO_MATRIX_RIGHT + NEO_MATRIX_COLUMNS + NEO_MATRIX_PROGRESSIVE);
 
 char clientname[10] = { 'E', 'S', 'P', '3', '2', '-', char(ESPPOSITION + 64) };
 EspMQTTClient *client = new EspMQTTClient(SSID, PASS, BROKER, clientname);
@@ -162,7 +164,8 @@ void checkActivity() {
 	// go to sleep after 1 min of idle time (not connected to web apps)
 	if (IDLETIME >= IN_MINUTE(1))
 	{
-		device_go_to_sleep(IN_MINUTE(1));
+		beforesleep();
+		device_go_to_sleep(30);
 	}
 
 	if (client->isConnected())

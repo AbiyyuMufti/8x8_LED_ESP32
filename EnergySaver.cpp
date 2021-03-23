@@ -21,20 +21,26 @@ void calculateESPState()
 	BattFil = batFilter.updateEstimate(analogRead(PIN_BATT));
 	LDRValFil = ldrFilter.updateEstimate(analogRead(PIN_LDR));
 	if (USE_LDR)
-	{
-		ESPINFO.BatteryState = map(BattFil, 0, 4094, 0, 100);
+	{	
 		ESPINFO.LDRValue = map(LDRValFil, 0, 4094, 0, 100);
 	}
 	else
 	{
-		ESPINFO.BatteryState = 0;
 		ESPINFO.LDRValue = 0;
+	}
+	if (DETECT_BAT)
+	{
+		ESPINFO.BatteryState = map(BattFil, 0, 4094, 0, 100);
+	} 
+	else
+	{
+		ESPINFO.BatteryState = 0;
 	}
 }
 
 void brightnessControl() {
 	static double Setpoint, Input, Output;
-	static const double Kp = 0.1, Ki = 0.0001, Kd = 0;
+	static const double Kp = 0.02, Ki = 0.000001, Kd = 0;
 	static PID myPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, REVERSE);
 
 	static int oldBrightness = BRIGHTNESS;
@@ -72,14 +78,14 @@ void brightnessControl() {
 		}
 	}
 	// Uncomment to see the value inside !!!
-	/*Serial.print("Akt: ");
-	Serial.print(matrix->gamma8(matrix->getBrightness()));
-	Serial.print(" Set: ");
+	//Serial.print("Akt: ");
+	//Serial.print(matrix->getBrightness());
+	/*Serial.print(" Set: ");
 	Serial.print(Setpoint);
 	Serial.print(" In: ");
 	Serial.print(Input);
 	Serial.print(" Out: ");
-	Serial.println(matrix->gamma8((uint8_t)Output));*/
+	Serial.println((uint8_t)Output);*/
 	/*Serial.print("Bat - unfiltered: ");
 	Serial.print(BattUnFil);
 	Serial.print(" filtered: ");

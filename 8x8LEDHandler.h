@@ -25,6 +25,7 @@
 extern CRGBArray<NUM_LEDS> ledArray;
 
 extern bool USE_LDR;
+extern bool DETECT_BAT;
 extern byte BRIGHTNESS;
 extern bool IS_ADAPTABLE_TO_LIGHT;
 extern uint32_t IDLETIME;
